@@ -1,0 +1,9 @@
+name: habitat
+version: 0.1.0
+
+authors:
+  - Paul Smith <paulcsmith0218@gmail.com>
+
+crystal: 0.22.0
+
+license: MIT
