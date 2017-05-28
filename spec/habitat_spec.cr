@@ -18,7 +18,7 @@ describe Habitat do
     end
 
     FakeServer.settings.port.should eq 8080
-    FakeServer.settings.debug_errors.should eq false
+    FakeServer.settings.debug_errors.should eq true
     FakeServer.new.available_in_instance_methods.should eq 8080
   end
 end
