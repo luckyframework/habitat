@@ -18,8 +18,6 @@ dependencies:
 require "habitat"
 ```
 
-_No code yet. This is here to give me an idea of what I want the library to do._
-
 ```crystal
 class MyServer
   Habitat.create do
@@ -36,8 +34,11 @@ end
 MyServer.configure do
   settings.port = 8080
 end
-```
 
+# At the very end of your program use this
+# It will raise if you forgot to set any settings
+Habitat.raise_if_missing_settings!
+```
 
 ## Contributing
 
