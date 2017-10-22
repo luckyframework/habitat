@@ -1,6 +1,21 @@
 require "./habitat/*"
 
 class Habitat
+  class MissingSettingError < Exception
+    def initialize(setting)
+      super <<-ERROR
+      #{setting} was nil, but the setting is required. Please set it.
+
+      Example:
+
+        SomeClass.configure do
+          settings.the_missing_setting = "some_value"
+        end
+
+      ERROR
+    end
+  end
+
   REQUIRED_SETTINGS = [] of String
 
   macro finished
@@ -9,6 +24,14 @@ class Habitat
         return true if {{ setting.id }}.nil?
       {% end %}
       false
+    end
+
+    def self.raise_if_missing_settings!
+      {% for setting in REQUIRED_SETTINGS %}
+        if {{ setting.id }}.nil?
+          raise MissingSettingError.new("{{ setting.gsub(/\?$/, "").id }}")
+        end
+      {% end %}
     end
   end
 

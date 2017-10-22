@@ -27,6 +27,9 @@ describe Habitat do
   it "can check for missing settings" do
     # Because this_is_missing was never set
     Habitat.missing_settings?.should be_true
+    expect_raises(Habitat::MissingSettingError, "this_is_missing") do
+      Habitat.raise_if_missing_settings!
+    end
 
     FakeServer.configure do
       settings.this_is_missing = "Not anymore"
