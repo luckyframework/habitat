@@ -2,41 +2,43 @@ require "./habitat/*"
 
 class Habitat
   class MissingSettingError < Exception
-    def initialize(setting)
+    def initialize(type, setting_name)
       super <<-ERROR
-      #{setting} was nil, but the setting is required. Please set it.
+      The '#{setting_name}' setting for #{type} was nil, but the setting is required.
 
-      Example:
+      Try this...
 
-        SomeClass.configure do
-          settings.the_missing_setting = "some_value"
+        #{type}.configure do
+          settings.#{setting_name} = "some_value"
         end
 
       ERROR
     end
   end
 
-  REQUIRED_SETTINGS = [] of String
+  TYPES_WITH_HABITAT = [] of Nil
+
+  macro track(type)
+    {% TYPES_WITH_HABITAT << type %}
+  end
 
   macro finished
-    def self.missing_settings?
-      {% for setting in REQUIRED_SETTINGS %}
-        return true if {{ setting.id }}.nil?
-      {% end %}
-      false
-    end
-
     def self.raise_if_missing_settings!
-      {% for setting in REQUIRED_SETTINGS %}
-        if {{ setting.id }}.nil?
-          raise MissingSettingError.new("{{ setting.gsub(/\?$/, "").id }}")
-        end
+      {% for type in TYPES_WITH_HABITAT %}
+        {% for type_declaration in type.constant(:REQUIRED_SETTINGS) %}
+          if {{ type }}.settings.{{ type_declaration.var }}?.nil?
+            raise MissingSettingError.new {{ type }}, setting_name: {{ type_declaration.var.stringify }}
+          end
+        {% end %}
       {% end %}
     end
   end
 
   macro create
     include Habitat::SettingHelpers
+    Habitat.track(\{{ @type }})
+
+    REQUIRED_SETTINGS = [] of TypeDeclaration
 
     def self.configure
       with self yield
@@ -58,9 +60,10 @@ class Habitat
 
   module SettingHelpers
     macro setting(decl)
+      {% REQUIRED_SETTINGS << decl %}
+
       class Settings
         @@{{ decl.var }} : {{decl.type}} | Nil {% if decl.value %} = {{ decl.value }}{% end %}
-        {% Habitat::REQUIRED_SETTINGS << "#{@type}.settings.#{decl.var}?" %}
 
         def self.{{ decl.var }}=(value : {{ decl.type }})
           @@{{ decl.var }} = value

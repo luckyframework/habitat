@@ -25,8 +25,6 @@ describe Habitat do
   end
 
   it "can check for missing settings" do
-    # Because this_is_missing was never set
-    Habitat.missing_settings?.should be_true
     expect_raises(Habitat::MissingSettingError, "this_is_missing") do
       Habitat.raise_if_missing_settings!
     end
@@ -35,6 +33,6 @@ describe Habitat do
       settings.this_is_missing = "Not anymore"
     end
 
-    Habitat.missing_settings?.should be_false
+    Habitat.raise_if_missing_settings!
   end
 end
