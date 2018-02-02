@@ -63,7 +63,8 @@ class Habitat
       {% REQUIRED_SETTINGS << decl %}
 
       class Settings
-        @@{{ decl.var }} : {{decl.type}} | Nil {% if decl.value %} = {{ decl.value }}{% end %}
+        {% has_default = decl.value || decl.value == false %}
+        @@{{ decl.var }} : {{decl.type}} | Nil {% if has_default %} = {{ decl.value }}{% end %}
 
         def self.{{ decl.var }}=(value : {{ decl.type }})
           @@{{ decl.var }} = value
