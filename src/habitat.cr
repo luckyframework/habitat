@@ -36,6 +36,7 @@ class Habitat
 
   macro create
     include Habitat::SettingHelpers
+    include Habitat::TempConfig
     Habitat.track(\{{ @type }})
 
     REQUIRED_SETTINGS = [] of TypeDeclaration
@@ -56,6 +57,19 @@ class Habitat
     end
 
     {{ yield }}
+  end
+
+  module TempConfig
+    macro temp_config(**settings_with_values)
+      {% for setting_name, setting_value in settings_with_values %}
+        original_{{ setting_name }} = {{ @type.name }}.settings.{{setting_name}}
+        {{ @type.name }}.settings.{{ setting_name }} = {{ setting_value }}
+      {% end %}
+      {{ yield }}
+      {% for setting_name, _unused in settings_with_values %}
+        {{ @type.name }}.settings.{{ setting_name }} = original_{{ setting_name }}
+      {% end %}
+    end
   end
 
   module SettingHelpers
