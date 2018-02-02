@@ -7,6 +7,8 @@ class FakeServer
     setting debug_errors : Bool = true
     setting boolean : Bool = false
     setting something_that_can_be_multiple_types : String | Int32
+    setting this_can_be_nil : String?
+    setting nilable_with_default : String? = "default"
   end
 
   def available_in_instance_methods
@@ -33,6 +35,18 @@ describe Habitat do
     FakeServer.settings.something_that_can_be_multiple_types.should eq 1
   end
 
+  it "works with nilable types" do
+    setup_server
+    FakeServer.settings.this_can_be_nil.should be_nil
+
+    setup_server(this_can_be_nil: "not nil")
+    FakeServer.settings.this_can_be_nil.should eq "not nil"
+
+    FakeServer.settings.nilable_with_default.should eq "default"
+    FakeServer.configure { settings.nilable_with_default = nil }
+    FakeServer.settings.nilable_with_default.should be_nil
+  end
+
   it "can check for missing settings" do
     setup_server
 
@@ -48,9 +62,12 @@ describe Habitat do
   end
 end
 
-private def setup_server(port = 8080, something_that_can_be_multiple_types = "string type")
+private def setup_server(port = 8080,
+                         something_that_can_be_multiple_types = "string type",
+                         this_can_be_nil = nil)
   FakeServer.configure do
     settings.port = port
     settings.something_that_can_be_multiple_types = something_that_can_be_multiple_types
+    settings.this_can_be_nil = this_can_be_nil
   end
 end
