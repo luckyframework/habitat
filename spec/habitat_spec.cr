@@ -47,6 +47,18 @@ describe Habitat do
     FakeServer.settings.nilable_with_default.should be_nil
   end
 
+  it "can set and reset config using a block" do
+    setup_server(port: 3000)
+
+    FakeServer.temp_config(port: 4000, this_can_be_nil: "string!") do
+      FakeServer.settings.port.should eq 4000
+      FakeServer.settings.this_can_be_nil.should eq "string!"
+    end
+
+    FakeServer.settings.port.should eq 3000
+    FakeServer.settings.this_can_be_nil.should be_nil
+  end
+
   it "can check for missing settings" do
     setup_server
 
