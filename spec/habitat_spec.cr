@@ -6,6 +6,7 @@ class FakeServer
     setting this_is_missing : String
     setting debug_errors : Bool = true
     setting boolean : Bool = false
+    setting something_that_can_be_multiple_types : String | Int32
   end
 
   def available_in_instance_methods
@@ -14,8 +15,8 @@ class FakeServer
 end
 
 describe Habitat do
-  it "works" do
-    FakeServer.configure { settings.port = 8080 }
+  it "works with simple types" do
+    setup_server(port: 8080)
 
     typeof(FakeServer.settings.port).should eq Int32
     FakeServer.settings.port.should eq 8080
@@ -24,8 +25,16 @@ describe Habitat do
     FakeServer.new.available_in_instance_methods.should eq 8080
   end
 
+  it "works with union types" do
+    setup_server(something_that_can_be_multiple_types: "string")
+    FakeServer.settings.something_that_can_be_multiple_types.should eq "string"
+
+    setup_server(something_that_can_be_multiple_types: 1)
+    FakeServer.settings.something_that_can_be_multiple_types.should eq 1
+  end
+
   it "can check for missing settings" do
-    FakeServer.configure { settings.port = 8080 }
+    setup_server
 
     expect_raises(Habitat::MissingSettingError, "this_is_missing") do
       Habitat.raise_if_missing_settings!
@@ -36,5 +45,12 @@ describe Habitat do
     end
 
     Habitat.raise_if_missing_settings!
+  end
+end
+
+private def setup_server(port = 8080, something_that_can_be_multiple_types = "string type")
+  FakeServer.configure do
+    settings.port = port
+    settings.something_that_can_be_multiple_types = something_that_can_be_multiple_types
   end
 end
