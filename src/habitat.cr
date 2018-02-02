@@ -60,7 +60,12 @@ class Habitat
 
   module SettingHelpers
     macro setting(decl)
-      {% REQUIRED_SETTINGS << decl %}
+      {% if decl.type.is_a?(Union) && decl.type.types.map(&.id).includes?(Nil.id) %}
+        {% nilable = true %}
+      {% else %}
+        {% nilable = false %}
+        {% REQUIRED_SETTINGS << decl %}
+      {% end %}
 
       class Settings
         {% has_default = decl.value || decl.value == false %}
@@ -71,7 +76,7 @@ class Habitat
         end
 
         def self.{{ decl.var }}
-          @@{{ decl.var }}.not_nil!
+          @@{{ decl.var }}{% if !nilable %}.not_nil!{% end %}
         end
 
         def self.{{ decl.var }}?
