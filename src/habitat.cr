@@ -42,7 +42,7 @@ class Habitat
     REQUIRED_SETTINGS = [] of TypeDeclaration
 
     def self.configure
-      with self yield
+      with self yield settings
     end
 
     class Settings
