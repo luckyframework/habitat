@@ -53,7 +53,7 @@ describe Habitat do
     FakeServer.settings.this_can_be_nil.should eq "not nil"
 
     FakeServer.settings.nilable_with_default.should eq "default"
-    FakeServer.configure { settings.nilable_with_default = nil }
+    FakeServer.configure { |settings| settings.nilable_with_default = nil }
     FakeServer.settings.nilable_with_default.should be_nil
   end
 
@@ -76,7 +76,7 @@ describe Habitat do
       Habitat.raise_if_missing_settings!
     end
 
-    FakeServer.configure do
+    FakeServer.configure do |settings|
       settings.this_is_missing = "Not anymore"
     end
 
@@ -87,7 +87,7 @@ end
 private def setup_server(port = 8080,
                          something_that_can_be_multiple_types = "string type",
                          this_can_be_nil = nil)
-  FakeServer.configure do
+  FakeServer.configure do |settings|
     settings.port = port
     settings.something_that_can_be_multiple_types = something_that_can_be_multiple_types
     settings.this_can_be_nil = this_can_be_nil
