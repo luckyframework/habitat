@@ -17,16 +17,6 @@ class FakeServer
 end
 
 describe Habitat do
-  context ".configure" do
-    it "passes settings as yield argument" do
-      setup_server
-      FakeServer.configure do |config|
-        config.port = 8080
-      end
-      FakeServer.settings.port.should eq(8080)
-    end
-  end
-
   it "works with simple types" do
     setup_server(port: 8080)
 
