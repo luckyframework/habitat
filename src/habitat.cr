@@ -25,10 +25,13 @@ class Habitat
   macro finished
     def self.raise_if_missing_settings!
       {% for type in TYPES_WITH_HABITAT %}
-        {% for type_declaration in type.constant(:REQUIRED_SETTINGS) %}
-          if {{ type }}.settings.{{ type_declaration.var }}?.nil?
-            raise MissingSettingError.new {{ type }}, setting_name: {{ type_declaration.var.stringify }}
-          end
+        {% for decl in type.constant(:HABITAT_SETTINGS) %}
+          {% if !decl.type.is_a?(Union) ||
+                  (decl.type.is_a?(Union) && !decl.type.types.map(&.id).includes?(Nil.id)) %}
+            if {{ type }}.settings.{{ decl.var }}?.nil?
+              raise MissingSettingError.new {{ type }}, setting_name: {{ decl.var.stringify }}
+            end
+          {% end %}
         {% end %}
       {% end %}
     end
@@ -40,7 +43,6 @@ class Habitat
     include Habitat::TempConfig
     include Habitat::SettingsHelpers
 
-    REQUIRED_SETTINGS = [] of Nil
     HABITAT_SETTINGS = [] of Crystal::Macros::TypeDeclaration
 
     def self.configure
@@ -69,11 +71,6 @@ class Habitat
 
   module SettingsHelpers
     macro setting(decl)
-      {% if !decl.type.is_a?(Union) ||
-              (decl.type.is_a?(Union) && !decl.type.types.map(&.id).includes?(Nil.id)) %}
-        {% REQUIRED_SETTINGS << decl %}
-      {% end %}
-
       {% HABITAT_SETTINGS << decl %}
     end
 
