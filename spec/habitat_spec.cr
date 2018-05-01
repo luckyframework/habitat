@@ -19,6 +19,7 @@ end
 class Parent
   Habitat.create do
     setting parent_setting : Bool = true
+    setting inheritable_setting : String = ""
   end
 end
 
@@ -55,11 +56,20 @@ describe Habitat do
   end
 
   it "works with inherited config" do
-    Parent.settings.parent_setting.should be_true
-    Child.settings.parent_setting.should be_true
-    Child.settings.is_child.should be_true
-    AnotherChild.settings.parent_setting.should be_true
-    AnotherChild.settings.responds_to?(:another_one).should be_false
+    Parent.temp_config(inheritable_setting: "inherit me") do
+      Parent.settings.parent_setting.should be_true
+      Child.settings.parent_setting.should be_true
+      Child.settings.inheritable_setting.should eq "inherit me"
+      Child.settings.is_child.should be_true
+      AnotherChild.settings.parent_setting.should be_true
+      AnotherChild.settings.responds_to?(:another_one).should be_false
+    end
+
+    Child.configure do
+      settings.another_one = "another"
+    end
+
+    Child.settings.another_one.should eq "another"
   end
 
   it "works with union types" do
