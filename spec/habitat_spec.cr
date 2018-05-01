@@ -16,6 +16,23 @@ class FakeServer
   end
 end
 
+class Parent
+  Habitat.create do
+    setting parent_setting : Bool = true
+  end
+end
+
+class Child < Parent
+  Habitat.create do
+    setting is_child : Bool = true
+    setting another_one : String?
+  end
+end
+
+# Test that config is inherited from Parent without calling Habitat
+class AnotherChild < Parent
+end
+
 describe Habitat do
   it "works with simple types" do
     setup_server(port: 8080)
@@ -25,6 +42,14 @@ describe Habitat do
     FakeServer.settings.debug_errors.should eq true
     FakeServer.settings.boolean.should eq false
     FakeServer.new.available_in_instance_methods.should eq 8080
+  end
+
+  it "works with inherited config" do
+    Parent.settings.parent_setting.should be_true
+    Child.settings.parent_setting.should be_true
+    Child.settings.is_child.should be_true
+    AnotherChild.settings.parent_setting.should be_true
+    AnotherChild.settings.responds_to?(:another_one).should be_false
   end
 
   it "works with union types" do

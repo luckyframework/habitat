@@ -35,11 +35,13 @@ class Habitat
   end
 
   macro create
-    include Habitat::SettingHelpers
-    include Habitat::TempConfig
     Habitat.track(\{{ @type }})
 
-    REQUIRED_SETTINGS = [] of TypeDeclaration
+    include Habitat::TempConfig
+    include Habitat::SettingsHelpers
+
+    REQUIRED_SETTINGS = [] of Nil
+    HABITAT_SETTINGS = [] of Crystal::Macros::TypeDeclaration
 
     def self.configure
       with self yield
@@ -57,31 +59,43 @@ class Habitat
     end
 
     {{ yield }}
+
+    inherit_habitat_settings_from_superclass
+
+    macro finished
+      Habitat.create_settings_methods(\{{ @type }})
+    end
   end
 
-  module TempConfig
-    macro temp_config(**settings_with_values)
-      {% for setting_name, setting_value in settings_with_values %}
-        original_{{ setting_name }} = {{ @type.name }}.settings.{{setting_name}}
-        {{ @type.name }}.settings.{{ setting_name }} = {{ setting_value }}
+  module SettingsHelpers
+    macro setting(decl)
+      {% if !decl.type.is_a?(Union) ||
+              (decl.type.is_a?(Union) && !decl.type.types.map(&.id).includes?(Nil.id)) %}
+        {% REQUIRED_SETTINGS << decl %}
       {% end %}
-      {{ yield }}
-      {% for setting_name, _unused in settings_with_values %}
-        {{ @type.name }}.settings.{{ setting_name }} = original_{{ setting_name }}
+
+      {% HABITAT_SETTINGS << decl %}
+    end
+
+    macro inherit_habitat_settings_from_superclass
+      {% if @type.superclass.constant(:HABITAT_SETTINGS) %}
+        {% for decl in @type.superclass.constant(:HABITAT_SETTINGS) %}
+          {% HABITAT_SETTINGS << decl %}
+        {% end %}
       {% end %}
     end
   end
 
-  module SettingHelpers
-    macro setting(decl)
-      {% if decl.type.is_a?(Union) && decl.type.types.map(&.id).includes?(Nil.id) %}
-        {% nilable = true %}
-      {% else %}
-        {% nilable = false %}
-        {% REQUIRED_SETTINGS << decl %}
-      {% end %}
+  macro create_settings_methods(type_with_habitat)
+    class Settings
+      {% type_with_habitat = type_with_habitat.resolve %}
+      {% for decl in type_with_habitat.constant(:HABITAT_SETTINGS) %}
+        {% if decl.type.is_a?(Union) && decl.type.types.map(&.id).includes?(Nil.id) %}
+          {% nilable = true %}
+        {% else %}
+          {% nilable = false %}
+        {% end %}
 
-      class Settings
         {% has_default = decl.value || decl.value == false %}
         @@{{ decl.var }} : {{decl.type}} | Nil {% if has_default %} = {{ decl.value }}{% end %}
 
@@ -96,7 +110,22 @@ class Habitat
         def self.{{ decl.var }}?
           @@{{ decl.var }}
         end
-      end
+      {% end %}
+    end
+  end
+
+  module TempConfig
+    macro temp_config(**settings_with_values)
+      {% for setting_name, setting_value in settings_with_values %}
+        original_{{ setting_name }} = {{ @type.name }}.settings.{{setting_name}}
+        {{ @type.name }}.settings.{{ setting_name }} = {{ setting_value }}
+      {% end %}
+
+      {{ yield }}
+
+      {% for setting_name, _unused in settings_with_values %}
+        {{ @type.name }}.settings.{{ setting_name }} = original_{{ setting_name }}
+      {% end %}
     end
   end
 end
