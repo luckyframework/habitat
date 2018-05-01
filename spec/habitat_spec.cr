@@ -29,6 +29,12 @@ class Child < Parent
   end
 end
 
+module ConfigurableModule
+  Habitat.create do
+    setting module_setting : String = "hello"
+  end
+end
+
 # Test that config is inherited from Parent without calling Habitat
 class AnotherChild < Parent
 end
@@ -42,6 +48,10 @@ describe Habitat do
     FakeServer.settings.debug_errors.should eq true
     FakeServer.settings.boolean.should eq false
     FakeServer.new.available_in_instance_methods.should eq 8080
+  end
+
+  it "works with modules" do
+    ConfigurableModule.settings.module_setting.should eq "hello"
   end
 
   it "works with inherited config" do

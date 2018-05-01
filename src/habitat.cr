@@ -75,7 +75,7 @@ class Habitat
     end
 
     macro inherit_habitat_settings_from_superclass
-      {% if @type.superclass.constant(:HABITAT_SETTINGS) %}
+      {% if @type.superclass && @type.superclass.constant(:HABITAT_SETTINGS) %}
         {% for decl in @type.superclass.constant(:HABITAT_SETTINGS) %}
           {% HABITAT_SETTINGS << decl %}
         {% end %}
