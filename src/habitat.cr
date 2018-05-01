@@ -62,7 +62,7 @@ class Habitat
 
     {{ yield }}
 
-    inherit_habitat_settings_from_superclass
+    # inherit_habitat_settings_from_superclass
 
     macro finished
       Habitat.create_settings_methods(\{{ @type }})
@@ -84,8 +84,17 @@ class Habitat
   end
 
   macro create_settings_methods(type_with_habitat)
+    {% type_with_habitat = type_with_habitat.resolve %}
+
     class Settings
-      {% type_with_habitat = type_with_habitat.resolve %}
+      {% if type_with_habitat.superclass && type_with_habitat.superclass.constant(:HABITAT_SETTINGS) %}
+        {% for decl in type_with_habitat.superclass.constant(:HABITAT_SETTINGS) %}
+          def self.{{ decl.var }}
+            ::{{ type_with_habitat.superclass }}::Settings.{{ decl.var }}
+          end
+        {% end %}
+      {% end %}
+
       {% for decl in type_with_habitat.constant(:HABITAT_SETTINGS) %}
         {% if decl.type.is_a?(Union) && decl.type.types.map(&.id).includes?(Nil.id) %}
           {% nilable = true %}
