@@ -23,6 +23,7 @@ class MyServer
   Habitat.create do
     setting port : Int32
     setting debug_errors : Bool = true
+    setting host : String, example: "127.0.0.1"
   end
 
   # Access them like this
