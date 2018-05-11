@@ -59,6 +59,8 @@ class Habitat
     end
   end
 
+  # Creates settings in the embedding class or module.
+  #
   # A class or module can call `Habitat.create` with a block of `setting` calls
   # that will declare the types (and optionally default values) of our settings.
   #
