@@ -18,10 +18,12 @@ class Habitat
 
   TYPES_WITH_HABITAT = [] of Nil
 
+  # :nodoc:
   macro track(type)
     {% TYPES_WITH_HABITAT << type %}
   end
 
+  # :nodoc:
   macro finished
     def self.raise_if_missing_settings!
       {% for type in TYPES_WITH_HABITAT %}
@@ -83,6 +85,7 @@ class Habitat
     end
   end
 
+  # :nodoc:
   macro create_settings_methods(type_with_habitat)
     {% type_with_habitat = type_with_habitat.resolve %}
 
