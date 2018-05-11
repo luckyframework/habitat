@@ -59,6 +59,62 @@ class Habitat
     end
   end
 
+  # A class or module can call `Habitat.create` with a block of `setting` calls
+  # that will declare the types (and optionally default values) of our settings.
+  #
+  # ```
+  # class MyServer
+  #   Habitat.create do
+  #     setting port : Int32
+  #     setting debug_errors : Bool = true
+  #   end
+  # end
+  # ```
+  #
+  # `create` adds class and instance `settings` methods to the embedding
+  # class/module, which we'll use to set and get the values of our settings.
+  #
+  # ```
+  # MyServer.settings.port = 80
+  # MyServer.settings.port # 80
+  # ```
+  #
+  # The settings assigned to a class will be inherited by its instances, but
+  # can be overwritten with the `settings` setters.
+  #
+  # ```
+  # server = MyServer.new
+  # server.settings.port # 80
+  # server.settings.port = 3000
+  # server.settings.port # 3000
+  # ```
+  #
+  # The settings assigned to a parent class will be inherited by its children
+  # classes and can be overwritten with the `settings` setters.
+  #
+  # ```
+  # class CustomServer < MyServer; end
+  #
+  # CustomServer.settings.port # 80
+  # CustomServer.settings.port = 3000
+  # CustomServer.settings.port # 3000
+  # ```
+  #
+  # Assigning a value to a setting of incompatible type will result in an error
+  # at compile time.
+  #
+  # ```
+  # MyServer.settings.port = "80" # Compile-time error! An Int32 was expected
+  # ```
+  #
+  # `create` also adds a `.configure` class method that takes a block where we
+  # can use the `settings` setters.
+  #
+  # ```
+  # MyServer.configure do
+  #   settings.port = 80
+  # end
+  # ```
   macro create
     Habitat.track(\{{ @type }})
 
