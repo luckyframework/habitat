@@ -23,6 +23,8 @@ class Habitat
   end
 
   macro finished
+    # Raises a `Habitat::MissingSettingError` if a required setting hasn't been
+    # set. We recommend that you call it at the very end of your program.
     def self.raise_if_missing_settings!
       {% for type in TYPES_WITH_HABITAT %}
         {% for decl in type.constant(:HABITAT_SETTINGS) %}
