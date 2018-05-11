@@ -2,14 +2,16 @@ require "./habitat/*"
 
 class Habitat
   class MissingSettingError < Exception
-    def initialize(type, setting_name)
+    def initialize(type, setting_name, example)
+      example = "some_value" if example == Nil
+      example = "\"#{example}\"" if example.is_a?(String)
       super <<-ERROR
       The '#{setting_name}' setting for #{type} was nil, but the setting is required.
 
       Try this...
 
         #{type}.configure do
-          settings.#{setting_name} = "some_value"
+          settings.#{setting_name} = #{example}
         end
 
       ERROR
@@ -25,11 +27,11 @@ class Habitat
   macro finished
     def self.raise_if_missing_settings!
       {% for type in TYPES_WITH_HABITAT %}
-        {% for decl in type.constant(:HABITAT_SETTINGS) %}
-          {% if !decl.type.is_a?(Union) ||
-                  (decl.type.is_a?(Union) && !decl.type.types.map(&.id).includes?(Nil.id)) %}
-            if {{ type }}.settings.{{ decl.var }}?.nil?
-              raise MissingSettingError.new {{ type }}, setting_name: {{ decl.var.stringify }}
+        {% for setting in type.constant(:HABITAT_SETTINGS) %}
+          {% if !setting[:decl].type.is_a?(Union) ||
+                  (setting[:decl].type.is_a?(Union) && !setting[:decl].type.types.map(&.id).includes?(Nil.id)) %}
+            if {{ type }}.settings.{{ setting[:decl].var }}?.nil?
+              raise MissingSettingError.new {{ type }}, setting_name: {{ setting[:decl].var.stringify }}, example: {{ setting[:example] }}
             end
           {% end %}
         {% end %}
@@ -43,7 +45,7 @@ class Habitat
     include Habitat::TempConfig
     include Habitat::SettingsHelpers
 
-    HABITAT_SETTINGS = [] of Crystal::Macros::TypeDeclaration
+    HABITAT_SETTINGS = [] of NamedTuple(type: Crystal::Macros::TypeDeclaration, example: T)
 
     def self.configure
       with self yield
@@ -70,8 +72,8 @@ class Habitat
   end
 
   module SettingsHelpers
-    macro setting(decl)
-      {% HABITAT_SETTINGS << decl %}
+    macro setting(decl, example = Nil)
+      {% HABITAT_SETTINGS << {decl: decl, example: example} %}
     end
 
     macro inherit_habitat_settings_from_superclass
@@ -88,14 +90,14 @@ class Habitat
 
     class Settings
       {% if type_with_habitat.superclass && type_with_habitat.superclass.constant(:HABITAT_SETTINGS) %}
-        {% for decl in type_with_habitat.superclass.constant(:HABITAT_SETTINGS) %}
+        {% for decl in type_with_habitat.superclass.constant(:HABITAT_SETTINGS).map{ |setting| setting[:decl] } %}
           def self.{{ decl.var }}
             ::{{ type_with_habitat.superclass }}::Settings.{{ decl.var }}
           end
         {% end %}
       {% end %}
 
-      {% for decl in type_with_habitat.constant(:HABITAT_SETTINGS) %}
+      {% for decl in type_with_habitat.constant(:HABITAT_SETTINGS).map{ |setting| setting[:decl] } %}
         {% if decl.type.is_a?(Union) && decl.type.types.map(&.id).includes?(Nil.id) %}
           {% nilable = true %}
         {% else %}
