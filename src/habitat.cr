@@ -25,6 +25,26 @@ class Habitat
 
   # :nodoc:
   macro finished
+    # Raises an error when a required setting is missing.
+    #
+    # Raises a `Habitat::MissingSettingError` if a required setting hasn't been
+    # set. We recommend that you call it at the very end of your program.
+    #
+    # ```
+    # class YourClass
+    #   Habitat.create do
+    #     # ...
+    #   end
+    # end
+    #
+    # YourClass.configure do
+    #   # ...
+    # end
+    #
+    # # ...your main program ends here.
+    #
+    # Habitat.raise_if_missing_settings!
+    # ```
     def self.raise_if_missing_settings!
       {% for type in TYPES_WITH_HABITAT %}
         {% for decl in type.constant(:HABITAT_SETTINGS) %}
