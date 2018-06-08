@@ -48,7 +48,7 @@ class Habitat
     HABITAT_SETTINGS = [] of Crystal::Macros::TypeDeclaration
 
     def self.configure
-      with self yield
+      yield settings
     end
 
     class Settings
