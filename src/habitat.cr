@@ -8,7 +8,7 @@ class Habitat
 
       Try this...
 
-        #{type}.configure do
+        #{type}.configure do |settings|
           settings.#{setting_name} = "some_value"
         end
 
@@ -37,7 +37,7 @@ class Habitat
     #   end
     # end
     #
-    # YourClass.configure do
+    # YourClass.configure do |settings|
     #   # ...
     # end
     #

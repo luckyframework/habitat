@@ -31,7 +31,7 @@ class MyServer
   end
 end
 
-MyServer.configure do
+MyServer.configure do |settings|
   settings.port = 8080
 end
 
