@@ -65,7 +65,7 @@ describe Habitat do
       AnotherChild.settings.responds_to?(:another_one).should be_false
     end
 
-    Child.configure do
+    Child.configure do |settings|
       settings.another_one = "another"
     end
 
