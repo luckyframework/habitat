@@ -40,6 +40,13 @@ end
 Habitat.raise_if_missing_settings!
 ```
 
+Settings can also be accessed from outside the class:
+
+```crystal
+port = MyServer.settings.port
+puts "The server is starting on port #{port}"
+```
+
 ## Contributing
 
 1. Fork it ( https://github.com/luckyframework/habitat/fork )
