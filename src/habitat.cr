@@ -51,32 +51,44 @@ class Habitat
   # end
   # ```
   #
-  # `create` adds class and instance `settings` methods to the embedding
-  # class/module, which we'll use to set and get the values of our settings.
+  # `create` adds a `.configure` class method that takes a block where we
+  # can use the `settings` setters.
   #
   # ```
-  # MyServer.settings.port = 80
+  # MyServer.configure do
+  #   settings.port = 80
+  #   settings.debug_errors = false
+  # end
+  # ```
+  #
+  # `create` also adds class and instance `settings` methods to the embedding
+  # class/module, which we'll use to get the values of our settings.
+  #
+  # ```
+  # MyServer.configure do |settings|
+  #   settings.port = 80
+  # end
+  #
   # MyServer.settings.port # 80
-  # ```
   #
-  # The settings assigned to a class will be inherited by its instances, but
-  # can be overwritten with the `settings` setters.
-  #
-  # ```
-  # server = MyServer.new
-  # server.settings.port # 80
-  # server.settings.port = 3000
-  # server.settings.port # 3000
+  # # In an instance method
+  # class MyServer
+  #   def what_is_the_port
+  #     settings.port # 80
+  #   end
+  # end
   # ```
   #
   # The settings assigned to a parent class will be inherited by its children
-  # classes and can be overwritten with the `settings` setters.
+  # classes.
   #
   # ```
   # class CustomServer < MyServer; end
   #
-  # CustomServer.settings.port # 80
-  # CustomServer.settings.port = 3000
+  # MyServer.configure do |settings|
+  #   settings.port = 3000
+  # end
+  #
   # CustomServer.settings.port # 3000
   # ```
   #
@@ -84,15 +96,8 @@ class Habitat
   # at compile time.
   #
   # ```
-  # MyServer.settings.port = "80" # Compile-time error! An Int32 was expected
-  # ```
-  #
-  # `create` also adds a `.configure` class method that takes a block where we
-  # can use the `settings` setters.
-  #
-  # ```
-  # MyServer.configure do
-  #   settings.port = 80
+  # MyServer.configure do |settings|
+  #   settings.port = "80" # Compile-time error! An Int32 was expected
   # end
   # ```
   macro create
