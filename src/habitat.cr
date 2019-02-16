@@ -4,7 +4,7 @@ class Habitat
   # :nodoc:
   class MissingSettingError < Exception
     def initialize(type, setting_name, example)
-      example = "some_value" if example == Nil
+      example ||= "some_value"
       example = "\"#{example}\"" if example.is_a?(String)
       super <<-ERROR
       The '#{setting_name}' setting for #{type} was nil, but the setting is required.
@@ -131,7 +131,7 @@ class Habitat
     include Habitat::TempConfig
     include Habitat::SettingsHelpers
 
-    HABITAT_SETTINGS = [] of NamedTuple(type: Crystal::Macros::TypeDeclaration, example: T)
+    HABITAT_SETTINGS = [] of Nil
 
     def self.configure
       yield settings
@@ -178,14 +178,14 @@ class Habitat
 
     class Settings
       {% if type_with_habitat.superclass && type_with_habitat.superclass.constant(:HABITAT_SETTINGS) %}
-        {% for decl in type_with_habitat.superclass.constant(:HABITAT_SETTINGS).map{ |setting| setting[:decl] } %}
+        {% for decl in type_with_habitat.superclass.constant(:HABITAT_SETTINGS).map { |setting| setting[:decl] } %}
           def self.{{ decl.var }}
             ::{{ type_with_habitat.superclass }}::Settings.{{ decl.var }}
           end
         {% end %}
       {% end %}
 
-      {% for decl in type_with_habitat.constant(:HABITAT_SETTINGS).map{ |setting| setting[:decl] } %}
+      {% for decl in type_with_habitat.constant(:HABITAT_SETTINGS).map(&.[:decl]) %}
         {% if decl.type.is_a?(Union) && decl.type.types.map(&.id).includes?(Nil.id) %}
           {% nilable = true %}
         {% else %}
