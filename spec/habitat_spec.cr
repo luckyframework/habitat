@@ -23,6 +23,12 @@ class FakeServer
   end
 end
 
+class Generics < Hash(String, String)
+  Habitat.create do
+    setting should_work : String = "with generics"
+  end
+end
+
 class Parent
   Habitat.create do
     setting parent_setting : Bool = true
@@ -97,6 +103,10 @@ describe Habitat do
     FakeServer.settings.nilable_with_default.should eq "default"
     FakeServer.configure { |settings| settings.nilable_with_default = nil }
     FakeServer.settings.nilable_with_default.should be_nil
+  end
+  
+  it "works with generics" do
+    Generics.settings.should_work.should eq "with generics"
   end
 
   it "can set and reset config using a block" do
