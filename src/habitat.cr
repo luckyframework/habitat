@@ -178,7 +178,7 @@ class Habitat
 
     class Settings
       {% if type_with_habitat.superclass && type_with_habitat.superclass.type_vars.size == 0 && type_with_habitat.superclass.constant(:HABITAT_SETTINGS) %}
-        {% for decl in type_with_habitat.superclass.constant(:HABITAT_SETTINGS) %}.map { |setting| setting[:decl] } %}
+        {% for decl in type_with_habitat.superclass.constant(:HABITAT_SETTINGS).map { |setting| setting[:decl] } %}
           def self.{{ decl.var }}
             ::{{ type_with_habitat.superclass }}::Settings.{{ decl.var }}
           end
