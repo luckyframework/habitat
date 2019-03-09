@@ -164,7 +164,7 @@ class Habitat
     end
 
     macro inherit_habitat_settings_from_superclass
-      {% if @type.superclass && @type.superclass.constant(:HABITAT_SETTINGS) %}
+      {% if @type.superclass && @type.superclass.type_vars.size == 0 && @type.superclass.constant(:HABITAT_SETTINGS) %}
         {% for decl in @type.superclass.constant(:HABITAT_SETTINGS) %}
           {% HABITAT_SETTINGS << decl %}
         {% end %}
@@ -177,7 +177,7 @@ class Habitat
     {% type_with_habitat = type_with_habitat.resolve %}
 
     class Settings
-      {% if type_with_habitat.superclass && type_with_habitat.superclass.constant(:HABITAT_SETTINGS) %}
+      {% if type_with_habitat.superclass && type_with_habitat.superclass.type_vars.size == 0 && type_with_habitat.superclass.constant(:HABITAT_SETTINGS) %}
         {% for decl in type_with_habitat.superclass.constant(:HABITAT_SETTINGS).map { |setting| setting[:decl] } %}
           def self.{{ decl.var }}
             ::{{ type_with_habitat.superclass }}::Settings.{{ decl.var }}
