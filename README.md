@@ -23,7 +23,13 @@ class MyServer
   Habitat.create do
     setting port : Int32
     setting debug_errors : Bool = true
-    setting host : String, example: "127.0.0.1"
+
+    # Optionally add examples to settings that appear in error messages
+    # when the value is not set.
+    #
+    # Use `String#dump` when you want the example to be wrapped in quotes
+    setting host : String, example: "127.0.0.1".dump
+    setting logger : Logger, example: "Logger.new(STDOUT)"
   end
 
   # Access them like this
