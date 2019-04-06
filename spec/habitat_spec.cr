@@ -1,16 +1,10 @@
 require "./spec_helper"
 
 class FakeServer
-  EXAMPLE_FOR_MISSING_STRING_SETTING     = "String Example"
-  EXAMPLE_FOR_MISSING_NON_STRING_SETTING = 18
-
   Habitat.create do
     setting port : Int32
     setting this_is_missing : String
-    setting this_is_missing_and_has_example : String,
-      example: FakeServer::EXAMPLE_FOR_MISSING_STRING_SETTING
-    setting this_is_missing_and_has_non_string_example : Int32,
-      example: FakeServer::EXAMPLE_FOR_MISSING_NON_STRING_SETTING
+    setting this_is_missing_and_has_example : String, example: "IO::Memory.new"
     setting debug_errors : Bool = true
     setting boolean : Bool = false
     setting something_that_can_be_multiple_types : String | Int32
@@ -130,17 +124,11 @@ describe Habitat do
 
     FakeServer.configure(&.this_is_missing = "Not anymore")
 
-    expect_raises(Habitat::MissingSettingError, FakeServer::EXAMPLE_FOR_MISSING_STRING_SETTING) do
+    expect_raises(Habitat::MissingSettingError, "IO::Memory.new") do
       Habitat.raise_if_missing_settings!
     end
 
     FakeServer.configure(&.this_is_missing_and_has_example = "No longer missing")
-
-    expect_raises(Habitat::MissingSettingError, " #{FakeServer::EXAMPLE_FOR_MISSING_NON_STRING_SETTING}") do
-      Habitat.raise_if_missing_settings!
-    end
-
-    FakeServer.configure(&.this_is_missing_and_has_non_string_example = 10)
 
     # Should not raise now that settings are set
     Habitat.raise_if_missing_settings!

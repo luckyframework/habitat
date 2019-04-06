@@ -4,7 +4,6 @@ class Habitat
   # :nodoc:
   class MissingSettingError < Exception
     def initialize(type, setting_name, example)
-      example = example.dump if example.is_a?(String)
       example ||= "some_value"
       super <<-ERROR
       The '#{setting_name}' setting for #{type} was nil, but the setting is required.
