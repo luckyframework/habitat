@@ -4,8 +4,8 @@ class Habitat
   # :nodoc:
   class MissingSettingError < Exception
     def initialize(type, setting_name, example)
+      example = example.dump if example.is_a?(String)
       example ||= "some_value"
-      example = "\"#{example}\"" if example.is_a?(String)
       super <<-ERROR
       The '#{setting_name}' setting for #{type} was nil, but the setting is required.
 
@@ -159,7 +159,7 @@ class Habitat
 
   # :nodoc:
   module SettingsHelpers
-    macro setting(decl, example = Nil)
+    macro setting(decl, example = nil)
       {% HABITAT_SETTINGS << {decl: decl, example: example} %}
     end
 

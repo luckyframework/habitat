@@ -104,7 +104,7 @@ describe Habitat do
     FakeServer.configure { |settings| settings.nilable_with_default = nil }
     FakeServer.settings.nilable_with_default.should be_nil
   end
-  
+
   it "works with generics" do
     Generics.settings.should_work.should eq "with generics"
   end
@@ -124,7 +124,7 @@ describe Habitat do
   it "can check for missing settings" do
     setup_server
 
-    expect_raises(Habitat::MissingSettingError, "this_is_missing") do
+    expect_raises(Habitat::MissingSettingError, %(settings.this_is_missing = some_value)) do
       Habitat.raise_if_missing_settings!
     end
 
