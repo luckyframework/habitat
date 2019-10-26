@@ -206,6 +206,14 @@ class Habitat
           @@{{ decl.var }}
         end
       {% end %}
+
+      def self.to_h
+        {
+          {% for decl in type_with_habitat.constant(:HABITAT_SETTINGS).map(&.[:decl]) %}
+            {{ decl.var.stringify }} => {{ decl.var }},
+          {% end %}
+        }
+      end
     end
   end
 
