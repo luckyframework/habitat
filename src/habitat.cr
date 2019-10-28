@@ -207,6 +207,7 @@ class Habitat
         end
       {% end %}
 
+      # Generates a hash using the provided values
       def self.to_h
         {
           {% for decl in type_with_habitat.constant(:HABITAT_SETTINGS).map(&.[:decl]) %}
