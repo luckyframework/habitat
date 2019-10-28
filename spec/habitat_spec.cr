@@ -133,6 +133,21 @@ describe Habitat do
     # Should not raise now that settings are set
     Habitat.raise_if_missing_settings!
   end
+
+  it "can be converted to a Hash" do
+    setup_server
+    hash = {
+      "port" => 8080,
+      "this_is_missing" => "Not anymore",
+      "this_is_missing_and_has_example" => "No longer missing",
+      "debug_errors" => true,
+      "boolean" => false,
+      "something_that_can_be_multiple_types" => "string type",
+      "this_can_be_nil" => nil,
+      "nilable_with_default" => nil
+    }
+    FakeServer.settings.to_h.should eq hash
+  end
 end
 
 private def setup_server(port = 8080,
