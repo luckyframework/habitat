@@ -137,14 +137,14 @@ describe Habitat do
   it "can be converted to a Hash" do
     setup_server
     hash = {
-      "port" => 8080,
-      "this_is_missing" => "Not anymore",
-      "this_is_missing_and_has_example" => "No longer missing",
-      "debug_errors" => true,
-      "boolean" => false,
+      "port"                                 => 8080,
+      "this_is_missing"                      => "Not anymore",
+      "this_is_missing_and_has_example"      => "No longer missing",
+      "debug_errors"                         => true,
+      "boolean"                              => false,
       "something_that_can_be_multiple_types" => "string type",
-      "this_can_be_nil" => nil,
-      "nilable_with_default" => nil
+      "this_can_be_nil"                      => nil,
+      "nilable_with_default"                 => nil,
     }
     FakeServer.settings.to_h.should eq hash
   end
