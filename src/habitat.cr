@@ -18,6 +18,10 @@ class Habitat
     end
   end
 
+  # :nodoc:
+  class InvalidSettingFormatError < Exception
+  end
+
   TYPES_WITH_HABITAT = [] of Nil
 
   # :nodoc:
@@ -124,6 +128,28 @@ class Habitat
   #   settings.port = "80" # Compile-time error! An Int32 was expected
   # end
   # ```
+  #
+  # Each setting can take an optional `validation` argument to ensure the setting
+  # value matches a specific format.
+  #
+  # ```
+  # class MyMachine
+  #   Habitat.create do
+  #     setting pin : String, validation: :pin_format
+  #   end
+  #
+  #   def self.pin_format(value : String)
+  #     value.match(/^\d{4}/) || settings.invalid("Your PIN must be exactly 4 digits")
+  #   end
+  # end
+  # ```
+  #
+  # Even though the type is correct, this will now raise an error because the format doesn't match
+  # ```
+  # MyMachine.configure do |settings|
+  #   settings.pin = "abcd"
+  # end
+  # ```
   macro create
     Habitat.track(\{{ @type }})
 
@@ -158,8 +184,8 @@ class Habitat
 
   # :nodoc:
   module SettingsHelpers
-    macro setting(decl, example = nil)
-      {% HABITAT_SETTINGS << {decl: decl, example: example} %}
+    macro setting(decl, example = nil, validation = nil)
+      {% HABITAT_SETTINGS << {decl: decl, example: example, validation: validation} %}
     end
 
     macro inherit_habitat_settings_from_superclass
@@ -184,7 +210,8 @@ class Habitat
         {% end %}
       {% end %}
 
-      {% for decl in type_with_habitat.constant(:HABITAT_SETTINGS).map(&.[:decl]) %}
+      {% for opt in type_with_habitat.constant(:HABITAT_SETTINGS) %}
+        {% decl = opt[:decl] %}
         {% if decl.type.is_a?(Union) && decl.type.types.map(&.id).includes?(Nil.id) %}
           {% nilable = true %}
         {% else %}
@@ -194,7 +221,15 @@ class Habitat
         {% has_default = decl.value || decl.value == false %}
         @@{{ decl.var }} : {{decl.type}} | Nil {% if has_default %} = {{ decl.value }}{% end %}
 
+        # Raise the `message` passed in.
+        def self.invalid(message : String)
+          raise ::Habitat::InvalidSettingFormatError.new(message)
+        end
+
         def self.{{ decl.var }}=(value : {{ decl.type }})
+          {% if opt[:validation] %}
+          {{ type_with_habitat }}.{{ opt[:validation].id }}(value)
+          {% end %}
           @@{{ decl.var }} = value
         end
 

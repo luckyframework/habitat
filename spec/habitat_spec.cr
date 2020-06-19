@@ -37,6 +37,21 @@ class Child < Parent
   end
 end
 
+class WithSpecialFormat
+  Habitat.create do
+    setting pin : String, validation: :pin_format
+    setting code : Int32, validation: :code_format
+  end
+
+  def self.pin_format(value : String)
+    value.match(/^\d{4}$/) || settings.invalid("Number must be exactly 4 digits")
+  end
+
+  def self.code_format(value : Int32)
+    (value > 99 && value < 199) || settings.invalid("Number must between 99 and 199")
+  end
+end
+
 module ConfigurableModule
   Habitat.create do
     setting module_setting : String = "hello"
@@ -56,6 +71,32 @@ describe Habitat do
     FakeServer.settings.debug_errors.should eq true
     FakeServer.settings.boolean.should eq false
     FakeServer.new.available_in_instance_methods.should eq 8080
+  end
+
+  context "with validations" do
+    it "returns the correct value when the validation succeeds" do
+      WithSpecialFormat.configure do |settings|
+        settings.pin = "0123"
+        settings.code = 123
+      end
+
+      WithSpecialFormat.settings.pin.should eq "0123"
+      WithSpecialFormat.settings.code.should eq 123
+    end
+
+    it "raises an exception when the validation fails" do
+      expect_raises(Habitat::InvalidSettingFormatError, "Number must be exactly 4 digits") do
+        WithSpecialFormat.configure do |settings|
+          settings.pin = "some code"
+        end
+      end
+
+      expect_raises(Habitat::InvalidSettingFormatError, "Number must between 99 and 199") do
+        WithSpecialFormat.configure do |settings|
+          settings.code = 42
+        end
+      end
+    end
   end
 
   it "works with modules" do
