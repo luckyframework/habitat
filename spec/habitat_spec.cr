@@ -47,6 +47,11 @@ end
 class AnotherChild < Parent
 end
 
+# Test that using the constant name Settings doesn't actually conflict with
+# the HabitatSettings class
+class Settings::Index < Parent
+end
+
 describe Habitat do
   it "works with simple types" do
     setup_server(port: 8080)
@@ -147,6 +152,10 @@ describe Habitat do
       "nilable_with_default"                 => nil,
     }
     FakeServer.settings.to_h.should eq hash
+  end
+
+  it "doesn't conflict with Habitat Settings" do
+    Settings::Index.settings.parent_setting.should eq true
   end
 end
 
