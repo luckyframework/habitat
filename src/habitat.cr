@@ -65,6 +65,11 @@ class Habitat
     end
   end
 
+  # Raise the `message` passed in.
+  def self.raise_validation_error(message : String)
+    raise InvalidSettingFormatError.new(message)
+  end
+
   # Embed settings in a Class or Module.
   #
   # A class or module can call `Habitat.create` with a block of `setting` calls
@@ -139,7 +144,7 @@ class Habitat
   #   end
   #
   #   def self.pin_format(value : String)
-  #     value.match(/^\d{4}/) || settings.invalid("Your PIN must be exactly 4 digits")
+  #     value.match(/^\d{4}/) || Habitat.raise_validation_error("Your PIN must be exactly 4 digits")
   #   end
   # end
   # ```
@@ -220,11 +225,6 @@ class Habitat
 
         {% has_default = decl.value || decl.value == false %}
         @@{{ decl.var }} : {{decl.type}} | Nil {% if has_default %} = {{ decl.value }}{% end %}
-
-        # Raise the `message` passed in.
-        def self.invalid(message : String)
-          raise ::Habitat::InvalidSettingFormatError.new(message)
-        end
 
         def self.{{ decl.var }}=(value : {{ decl.type }})
           {% if opt[:validation] %}

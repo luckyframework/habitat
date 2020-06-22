@@ -44,11 +44,11 @@ class WithSpecialFormat
   end
 
   def self.pin_format(value : String)
-    value.match(/^\d{4}$/) || settings.invalid("Number must be exactly 4 digits")
+    value.match(/^\d{4}$/) || Habitat.raise_validation_error("Number must be exactly 4 digits")
   end
 
   def self.code_format(value : Int32)
-    (value > 99 && value < 199) || settings.invalid("Number must between 99 and 199")
+    (value > 99 && value < 199) || Habitat.raise_validation_error("Number must between 99 and 199")
   end
 end
 
