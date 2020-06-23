@@ -192,7 +192,14 @@ class Habitat
         {% end %}
 
         {% has_default = decl.value || decl.value == false %}
-        @@{{ decl.var }} : {{decl.type}} | Nil {% if has_default %} = {{ decl.value }}{% end %}
+        @@{{ decl.var }} : {{decl.type}} | Nil {% if has_default %} = begin
+          {{ decl.value }}
+        rescue
+          # This will cause a MissingSettingError to be raised
+          nil
+        end
+        {% end %}
+        
 
         def self.{{ decl.var }}=(value : {{ decl.type }})
           @@{{ decl.var }} = value
