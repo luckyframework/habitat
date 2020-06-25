@@ -224,7 +224,17 @@ class Habitat
         {% end %}
 
         {% has_default = decl.value || decl.value == false %}
-        @@{{ decl.var }} : {{decl.type}} | Nil {% if has_default %} = {{ decl.value }}{% end %}
+
+        # Use `begin` to catch if the default value raises an exception,
+        # then raise a MissingSettingError
+        @@{{ decl.var }} : {{decl.type}} | Nil {% if has_default %} = begin
+          {{ decl.value }}
+        rescue
+          # This will cause a MissingSettingError to be raised
+          nil
+        end
+        {% end %}
+        
 
         def self.{{ decl.var }}=(value : {{ decl.type }})
           {% if opt[:validation] %}

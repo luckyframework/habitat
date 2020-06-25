@@ -67,6 +67,19 @@ end
 class Settings::Index < Parent
 end
 
+# Test that when we set the default value to a setting, and the value
+class ConfigWithDefaultException
+  # Uncomment this to see a MissingSettingError
+  # Ref: https://github.com/luckyframework/habitat/issues/46
+  # Habitat.create do
+  #  setting explode : String = ConfigWithDefaultException.blows_up
+  # end
+
+  def self.blows_up
+    nil || raise "Boom"
+  end
+end
+
 describe Habitat do
   it "works with simple types" do
     setup_server(port: 8080)
