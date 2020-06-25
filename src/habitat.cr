@@ -192,6 +192,9 @@ class Habitat
         {% end %}
 
         {% has_default = decl.value || decl.value == false %}
+
+        # Use `begin` to catch if the default value raises an exception,
+        # then raise a MissingSettingError
         @@{{ decl.var }} : {{decl.type}} | Nil {% if has_default %} = begin
           {{ decl.value }}
         rescue
