@@ -234,7 +234,7 @@ class Habitat
           nil
         end
         {% end %}
-        
+
 
         def self.{{ decl.var }}=(value : {{ decl.type }})
           {% if opt[:validation] %}
