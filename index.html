@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Crystal Docs 0.34.0">
+<meta name="crystal_docs.project_version" content="0.4.4">
+<meta name="crystal_docs.project_name" content="habitat">
+
+
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/doc.js"></script>
+
+<svg class="hidden">
+  <symbol id="octicon-link" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+  </symbol>
+</svg>
+
+  <meta id="repository-name" content="habitat">
+  <title>habitat 0.4.4</title>
+  <script type="text/javascript">
+  CrystalDocs.base_path = "";
+  </script>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="search-box">
+      <input type="search" class="search-input" placeholder="Search..." spellcheck="false" aria-label="Search">
+    </div>
+
+    <div class="project-summary">
+      <h1 class="project-name">
+        <a href="index.html">
+          habitat
+        </a>
+      </h1>
+
+      <span class="project-version">
+        0.4.4
+      </span>
+    </div>
+  </div>
+
+  <div class="search-results" class="hidden">
+    <ul class="search-list"></ul>
+  </div>
+
+  <div class="types-list">
+    <ul>
+  
+  <li class="parent " data-id="habitat/Habitat" data-name="habitat">
+      <a href="Habitat.html">Habitat</a>
+      
+        <ul>
+  
+  <li class=" " data-id="habitat/Habitat/TempConfig" data-name="habitat::tempconfig">
+      <a href="Habitat/TempConfig.html">TempConfig</a>
+      
+    </li>
+  
+</ul>
+
+      
+    </li>
+  
+</ul>
+
+  </div>
+</div>
+
+
+<div class="main-content">
+<h1><a id="habitat" class="anchor" href="#habitat">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Habitat</h1>
+
+<p><a href="https://luckyframework.github.io/habitat" target="_blank"><img src="https://img.shields.io/website?down_color=red&down_message=Offline&label=API%20Documentation&up_message=Online&url=https%3A%2F%2Fluckyframework.github.io%2Fhabitat%2F" alt="API Documentation Website"/></a></p>
+
+<p>Easily configure settings for Crystal projects</p>
+
+<h2><a id="installation" class="anchor" href="#installation">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Installation</h2>
+
+<p>Add this to your application's <code>shard.yml</code>:</p>
+
+<pre><code class="language-yaml">dependencies:
+  habitat:
+    github: luckyframework/habitat</code></pre>
+
+<h2><a id="usage" class="anchor" href="#usage">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Usage</h2>
+
+<pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;habitat&quot;</span></code></pre>
+
+<pre><code class="language-crystal"><span class="k">class</span> <span class="t">MyServer</span>
+  <span class="t">Habitat</span>.create <span class="k">do</span>
+    setting port : <span class="t">Int32</span>
+    setting debug_errors : <span class="t">Bool</span> <span class="o">=</span> <span class="n">true</span>
+
+    <span class="c"># Optionally add examples to settings that appear in error messages</span>
+    <span class="c"># when the value is not set.</span>
+    <span class="c">#</span>
+    <span class="c"># Use `String#dump` when you want the example to be wrapped in quotes</span>
+    setting host : <span class="t">String</span>, example: <span class="s">&quot;127.0.0.1&quot;</span>.dump
+    setting logger : <span class="t">Logger</span>, example: <span class="s">&quot;Logger.new(STDOUT)&quot;</span>
+
+    <span class="c"># If you need the value to match a specific format, you can create</span>
+    <span class="c"># your own validation.</span>
+    setting protocol : <span class="t">String</span>, validation: <span class="n">:validate_protocol</span>
+  <span class="k">end</span>
+
+  <span class="c"># Read more on validations below</span>
+  <span class="k">def</span> <span class="m">self</span>.validate_protocol(value : <span class="t">String</span>)
+    value.match(<span class="s">/^http(?:s)*:$/</span>) || <span class="t">Habitat</span>.raise_validation_error(<span class="s">&quot;The protocol must be `http:` or `https:`.&quot;</span>)
+  <span class="k">end</span>
+
+  <span class="c"># Access them with the `settings` method like this.</span>
+  <span class="k">def</span> <span class="m">start</span>
+    start_server_on port: settings.port
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="c"># Configure your settings</span>
+<span class="t">MyServer</span>.configure <span class="k">do</span> <span class="o">|</span>settings<span class="o">|</span>
+  settings.port <span class="o">=</span> <span class="n">8080</span>
+<span class="k">end</span>
+
+<span class="c"># At the very end of your program use this</span>
+<span class="c"># It will raise if you forgot to set any settings</span>
+<span class="t">Habitat</span>.raise_if_missing_settings!</code></pre>
+
+<p>Settings can also be accessed from outside the class:</p>
+
+<pre><code class="language-crystal">port <span class="o">=</span> <span class="t">MyServer</span>.settings.port
+puts <span class="s">&quot;The server is starting on port </span><span class="i">#{</span>port<span class="i">}</span><span class="s">&quot;</span></code></pre>
+
+<h3><a id="setting-validations" class="anchor" href="#setting-validations">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Setting validations</h3>
+
+<p>The <code>validation</code> option takes a Symbol which matches a class method
+that will run your custom validation. This can be useful if your
+setting needs to be in a specific format like maybe a 4 digit code
+that can start with a 0.</p>
+
+<pre><code class="language-crystal"><span class="k">class</span> <span class="t">Secret</span>
+  <span class="t">Habitat</span>.create <span class="k">do</span>
+    setting code : <span class="t">String</span>, validation: <span class="n">:validate_code</span>
+  <span class="k">end</span>
+
+  <span class="c"># The validation method will take an argument of the same type.</span>
+  <span class="c"># If your setting is `Int32`, then this argument will also be `Int32`.</span>
+  <span class="c">#</span>
+  <span class="c"># Use any method of validation you&#39;d like here. (i.e. regex, other custom methods, etc...)</span>
+  <span class="c"># If your validation fails, you can call `Habitat.raise_validation_error` with your custom error</span>
+  <span class="c"># message</span>
+  <span class="k">def</span> <span class="m">self</span>.validate_code(value : <span class="t">String</span>)
+    value.match(<span class="s">/^\d{4}$/</span>) || <span class="t">Habitat</span>.raise_validation_error(<span class="s">&quot;Be sure the code is only 4 digits&quot;</span>)
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="t">Secret</span>.configure <span class="k">do</span> <span class="o">|</span>settings<span class="o">|</span>
+
+  <span class="c"># Even though the code is the correct type, this will still</span>
+  <span class="c"># raise an error for us.</span>
+  settings.code <span class="o">=</span> <span class="s">&quot;ABCD&quot;</span>
+
+  <span class="c"># This value will pass our validation</span>
+  settings.code <span class="o">=</span> <span class="s">&quot;0123&quot;</span>
+<span class="k">end</span></code></pre>
+
+<h2><a id="contributing" class="anchor" href="#contributing">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Contributing</h2>
+
+<ol><li>Fork it ( https://github.com/luckyframework/habitat/fork )</li><li>Create your feature branch (git checkout -b my-new-feature)</li><li>Commit your changes (git commit -am 'Add some feature')</li><li>Push to the branch (git push origin my-new-feature)</li><li>Create a new Pull Request</li></ol>
+
+<h2><a id="contributors" class="anchor" href="#contributors">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Contributors</h2>
+
+<ul><li><a href="https://github.com/paulcsmith" target="_blank">paulcsmith</a> Paul Smith - creator, maintainer</li></ul>
+</div>
+</body>
+</html>
