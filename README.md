@@ -1,5 +1,7 @@
 # Habitat
 
+[![API Documentation Website](https://img.shields.io/website?down_color=red&down_message=Offline&label=API%20Documentation&up_message=Online&url=https%3A%2F%2Fluckyframework.github.io%2Fhabitat%2F)](https://luckyframework.github.io/habitat)
+
 Easily configure settings for Crystal projects
 
 ## Installation
@@ -91,7 +93,7 @@ end
 Secret.configure do |settings|
 
   # Even though the code is the correct type, this will still
-  # raise an error for us. 
+  # raise an error for us.
   settings.code = "ABCD"
 
   # This value will pass our validation
