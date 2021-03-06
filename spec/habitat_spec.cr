@@ -1,5 +1,8 @@
 require "./spec_helper"
 
+class RandomClass
+end
+
 class FakeServer
   Habitat.create do
     setting port : Int32
@@ -10,6 +13,7 @@ class FakeServer
     setting something_that_can_be_multiple_types : String | Int32
     setting this_can_be_nil : String?
     setting nilable_with_default : String? = "default"
+    setting constant_setting : RandomClass.class | Nil, example: "RandomClass"
   end
 
   def available_in_instance_methods
@@ -230,6 +234,7 @@ describe Habitat do
       "something_that_can_be_multiple_types" => "string type",
       "this_can_be_nil"                      => nil,
       "nilable_with_default"                 => nil,
+      "constant_setting"                     => RandomClass,
     }
     FakeServer.settings.to_h.should eq hash
   end
@@ -246,5 +251,6 @@ private def setup_server(port = 8080,
     settings.port = port
     settings.something_that_can_be_multiple_types = something_that_can_be_multiple_types
     settings.this_can_be_nil = this_can_be_nil
+    settings.constant_setting = RandomClass
   end
 end
