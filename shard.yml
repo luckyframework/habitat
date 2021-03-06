@@ -10,5 +10,5 @@ license: MIT
 
 development_dependencies:
   ameba:
-    github: veelenga/ameba
-    version: ~> 0.13
+    github: crystal-ameba/ameba
+    version: 0.13.4

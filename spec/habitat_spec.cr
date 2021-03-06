@@ -80,6 +80,20 @@ class ConfigWithDefaultException
   end
 end
 
+class BaseConfig
+  # Comment this block out to see compile-time error
+  # from extend
+  Habitat.create do
+    setting name : String
+  end
+end
+
+class BaseConfig # reopen for extension
+  Habitat.extend do
+    setting number : Int32
+  end
+end
+
 describe Habitat do
   it "works with simple types" do
     setup_server(port: 8080)
@@ -114,6 +128,18 @@ describe Habitat do
           settings.code = 42
         end
       end
+    end
+  end
+
+  describe "extending configs" do
+    it "adds the extended setting" do
+      BaseConfig.configure do |settings|
+        settings.name = "TestConfig"
+        settings.number = 4
+      end
+
+      BaseConfig.settings.name.should eq "TestConfig"
+      BaseConfig.settings.number.should eq 4
     end
   end
 

@@ -187,6 +187,31 @@ class Habitat
     end
   end
 
+  macro extend
+    macro validate_create_setup_first(type)
+      \{% if !type.has_constant? "HABITAT_SETTINGS" %}
+        \{% raise <<-ERROR
+          No create block was specified for #{type}.
+          Habitat must be created before you can extend it.
+
+          Example:
+            Habitat.create do
+              setting id : Int64
+              ...
+            end
+          ERROR
+        %}
+      \{% end %}
+    end
+
+    validate_create_setup_first(\{{ @type }})
+
+    include Habitat::TempConfig
+    include Habitat::SettingsHelpers
+
+    {{ yield }}
+  end
+
   # :nodoc:
   module SettingsHelpers
     macro setting(decl, example = nil, validation = nil)
