@@ -101,6 +101,34 @@ Secret.configure do |settings|
 end
 ```
 
+### Temp Config
+
+There are some cases in which you may want to temporarily change a setting value. (i.e. specs, one off jobs, etc...)
+
+Habitat comes with a built-in method `temp_config` that allows you to do this:
+
+```crystal
+class Server
+  Habitat.create do
+    setting hostname : String
+  end
+end
+
+Server.configure do |settings|
+  settings.hostname = "localhost"
+end
+
+Server.settings.hostname #=> "localhost"
+
+Server.temp_config(hostname: "fancyhost.com") do
+  # This seting affects the value globally while inside this block
+  Server.settings.hostname #=> "fancyhost.com"
+end
+
+# Once the block exits, the original value is returned
+Server.settings.hostname #=> "localhost"
+```
+
 ## Contributing
 
 1. Fork it ( https://github.com/luckyframework/habitat/fork )
