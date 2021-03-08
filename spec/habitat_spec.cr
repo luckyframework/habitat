@@ -1,5 +1,8 @@
 require "./spec_helper"
 
+class RandomClass
+end
+
 class FakeServer
   Habitat.create do
     setting port : Int32
@@ -14,6 +17,12 @@ class FakeServer
 
   def available_in_instance_methods
     settings.port
+  end
+end
+
+class SettingWithConstant
+  Habitat.create do
+    setting constant_setting : RandomClass.class, example: "RandomClass"
   end
 end
 
@@ -214,6 +223,12 @@ describe Habitat do
     end
 
     FakeServer.configure(&.this_is_missing_and_has_example = "No longer missing")
+
+    expect_raises(Habitat::MissingSettingError, %(settings.constant_setting = RandomClass)) do
+      Habitat.raise_if_missing_settings!
+    end
+
+    SettingWithConstant.configure(&.constant_setting = RandomClass)
 
     # Should not raise now that settings are set
     Habitat.raise_if_missing_settings!
