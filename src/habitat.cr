@@ -54,7 +54,7 @@ class Habitat
     def self.raise_if_missing_settings!
       {% for type in TYPES_WITH_HABITAT %}
         {% for setting in type.constant(:HABITAT_SETTINGS) %}
-          {% if !setting[:decl].type.resolve.nilable? %}
+          {% if setting[:decl].type.is_a?(Metaclass) || !setting[:decl].type.resolve.nilable? %}
             if {{ type }}.settings.{{ setting[:decl].var }}?.nil?
               raise MissingSettingError.new {{ type }}, setting_name: {{ setting[:decl].var.stringify }}, example: {{ setting[:example] }}
             end
@@ -249,10 +249,16 @@ class Habitat
 
       {% for opt in type_with_habitat.constant(:HABITAT_SETTINGS) %}
         {% decl = opt[:decl] %}
-        {% if decl.type.resolve.nilable? %}
-          {% nilable = true %}
-        {% else %}
+        # A setting type that points to a class like `Avram::Database.class`
+        # can't be nilable.
+        {% if decl.type.is_a?(Metaclass) %}
           {% nilable = false %}
+        {% else %}
+          {% if decl.type.resolve.nilable? %}
+            {% nilable = true %}
+          {% else %}
+            {% nilable = false %}
+          {% end %}
         {% end %}
 
         {% has_default = decl.value || decl.value == false %}
