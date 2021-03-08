@@ -54,7 +54,8 @@ class Habitat
     def self.raise_if_missing_settings!
       {% for type in TYPES_WITH_HABITAT %}
         {% for setting in type.constant(:HABITAT_SETTINGS) %}
-          {% if setting[:decl].type.is_a?(Metaclass) || !setting[:decl].type.resolve.nilable? %}
+        {% if !setting[:decl].type.is_a?(Union) ||
+                (setting[:decl].type.is_a?(Union) && !setting[:decl].type.types.map(&.id).includes?(Nil.id)) %}
             if {{ type }}.settings.{{ setting[:decl].var }}?.nil?
               raise MissingSettingError.new {{ type }}, setting_name: {{ setting[:decl].var.stringify }}, example: {{ setting[:example] }}
             end
@@ -249,17 +250,15 @@ class Habitat
 
       {% for opt in type_with_habitat.constant(:HABITAT_SETTINGS) %}
         {% decl = opt[:decl] %}
-        # A setting type that points to a class like `Avram::Database.class`
-        # can't be nilable.
-        {% if decl.type.is_a?(Metaclass) %}
-          {% nilable = false %}
+        # NOTE: We can't use the macro level `type.resolve.nilable?` here because
+        # there's a few declaration types that don't respond to it which would make the logic
+        # more complex. Metaclass, and Proc types are the main, but there may be more.
+        {% if decl.type.is_a?(Union) && decl.type.types.map(&.id).includes?(Nil.id) %}
+          {% nilable = true %}
         {% else %}
-          {% if decl.type.resolve.nilable? %}
-            {% nilable = true %}
-          {% else %}
-            {% nilable = false %}
-          {% end %}
+          {% nilable = false %}
         {% end %}
+
 
         {% has_default = decl.value || decl.value == false %}
 
