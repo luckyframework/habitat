@@ -275,7 +275,7 @@ class Habitat
           @@{{ decl.var }} = value
         end
 
-        def self.{{ decl.var }} : {{ decl.type }}{% if nilable %}?{% end %}
+        def self.{{ decl.var }} : {{ decl.type }}
           @@{{ decl.var }}{% if !nilable %}.not_nil!{% end %}
         end
 
