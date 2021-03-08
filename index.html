@@ -182,6 +182,36 @@ that can start with a 0.</p>
   settings.code <span class="o">=</span> <span class="s">&quot;0123&quot;</span>
 <span class="k">end</span></code></pre>
 
+<h3><a id="temp-config" class="anchor" href="#temp-config">
+  <svg class="octicon-link" aria-hidden="true">
+    <use href="#octicon-link"/>
+  </svg>
+</a>Temp Config</h3>
+
+<p>There are some cases in which you may want to temporarily change a setting value. (i.e. specs, one off jobs, etc...)</p>
+
+<p>Habitat comes with a built-in method <code>temp_config</code> that allows you to do this:</p>
+
+<pre><code class="language-crystal"><span class="k">class</span> <span class="t">Server</span>
+  <span class="t">Habitat</span>.create <span class="k">do</span>
+    setting hostname : <span class="t">String</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="t">Server</span>.configure <span class="k">do</span> <span class="o">|</span>settings<span class="o">|</span>
+  settings.hostname <span class="o">=</span> <span class="s">&quot;localhost&quot;</span>
+<span class="k">end</span>
+
+<span class="t">Server</span>.settings.hostname <span class="c">#=&gt; &quot;localhost&quot;</span>
+
+<span class="t">Server</span>.temp_config(hostname: <span class="s">&quot;fancyhost.com&quot;</span>) <span class="k">do</span>
+  <span class="c"># This seting affects the value globally while inside this block</span>
+  <span class="t">Server</span>.settings.hostname <span class="c">#=&gt; &quot;fancyhost.com&quot;</span>
+<span class="k">end</span>
+
+<span class="c"># Once the block exits, the original value is returned</span>
+<span class="t">Server</span>.settings.hostname <span class="c">#=&gt; &quot;localhost&quot;</span></code></pre>
+
 <h2><a id="contributing" class="anchor" href="#contributing">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
