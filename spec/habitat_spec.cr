@@ -13,11 +13,16 @@ class FakeServer
     setting something_that_can_be_multiple_types : String | Int32
     setting this_can_be_nil : String?
     setting nilable_with_default : String? = "default"
-    setting constant_setting : RandomClass.class | Nil, example: "RandomClass"
   end
 
   def available_in_instance_methods
     settings.port
+  end
+end
+
+class SettingWithConstant
+  Habitat.create do
+    setting constant_setting : RandomClass.class, example: "RandomClass"
   end
 end
 
@@ -219,6 +224,12 @@ describe Habitat do
 
     FakeServer.configure(&.this_is_missing_and_has_example = "No longer missing")
 
+    expect_raises(Habitat::MissingSettingError, %(settings.constant_setting = RandomClass)) do
+      Habitat.raise_if_missing_settings!
+    end
+
+    SettingWithConstant.configure(&.constant_setting = RandomClass)
+
     # Should not raise now that settings are set
     Habitat.raise_if_missing_settings!
   end
@@ -234,7 +245,6 @@ describe Habitat do
       "something_that_can_be_multiple_types" => "string type",
       "this_can_be_nil"                      => nil,
       "nilable_with_default"                 => nil,
-      "constant_setting"                     => RandomClass,
     }
     FakeServer.settings.to_h.should eq hash
   end
@@ -251,6 +261,5 @@ private def setup_server(port = 8080,
     settings.port = port
     settings.something_that_can_be_multiple_types = something_that_can_be_multiple_types
     settings.this_can_be_nil = this_can_be_nil
-    settings.constant_setting = RandomClass
   end
 end
