@@ -54,8 +54,7 @@ class Habitat
     def self.raise_if_missing_settings!
       {% for type in TYPES_WITH_HABITAT %}
         {% for setting in type.constant(:HABITAT_SETTINGS) %}
-          {% if !setting[:decl].type.is_a?(Union) ||
-                  (setting[:decl].type.is_a?(Union) && !setting[:decl].type.types.map(&.id).includes?(Nil.id)) %}
+          {% if !setting[:decl].type.resolve.nilable? %}
             if {{ type }}.settings.{{ setting[:decl].var }}?.nil?
               raise MissingSettingError.new {{ type }}, setting_name: {{ setting[:decl].var.stringify }}, example: {{ setting[:example] }}
             end
@@ -215,6 +214,14 @@ class Habitat
   # :nodoc:
   module SettingsHelpers
     macro setting(decl, example = nil, validation = nil)
+      {% if decl.var.stringify.ends_with?('?') %}
+        {% decl.raise <<-ERROR
+        You cannot define a setting ending with '?'. Found #{decl.var} defined in #{@type}.
+
+        Habitat already has a predicate method #{decl.var} used when checking for missing settings.
+        ERROR
+        %}
+      {% end %}
       {% HABITAT_SETTINGS << {decl: decl, example: example, validation: validation} %}
     end
 
@@ -242,7 +249,7 @@ class Habitat
 
       {% for opt in type_with_habitat.constant(:HABITAT_SETTINGS) %}
         {% decl = opt[:decl] %}
-        {% if decl.type.is_a?(Union) && decl.type.types.map(&.id).includes?(Nil.id) %}
+        {% if decl.type.resolve.nilable? %}
           {% nilable = true %}
         {% else %}
           {% nilable = false %}
@@ -268,10 +275,13 @@ class Habitat
           @@{{ decl.var }} = value
         end
 
-        def self.{{ decl.var }}
+        def self.{{ decl.var }} : {{ decl.type }}
           @@{{ decl.var }}{% if !nilable %}.not_nil!{% end %}
         end
 
+        # Used for checking missing settings on non-nilable types
+        # It's advised to use {{ decl.var }} in your apps to ensure
+        # the propper type is checked.
         def self.{{ decl.var }}?
           @@{{ decl.var }}
         end
