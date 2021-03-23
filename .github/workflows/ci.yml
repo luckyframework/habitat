@@ -8,17 +8,33 @@ on:
 
 jobs:
   check_format:
+    strategy:
+      fail-fast: false
+      matrix:
+        crystal_version:
+          - 0.36.1
+          - 1.0.0
+        experimental:
+          - false
     runs-on: ubuntu-latest
-    container:
-      image: crystallang/crystal:0.36.1
+    continue-on-error: ${{ matrix.experimental }}
+    container: crystallang/crystal:${{ matrix.crystal_version }}-alpine
     steps:
       - uses: actions/checkout@v1
       - name: Format
         run: crystal tool form spec src --check
   ameba:
+    strategy:
+      fail-fast: false
+      matrix:
+        crystal_version:
+          - 0.36.1
+          - 1.0.0
+        experimental:
+          - false
     runs-on: ubuntu-latest
-    container:
-      image: crystallang/crystal:0.36.1
+    continue-on-error: ${{ matrix.experimental }}
+    container: crystallang/crystal:${{ matrix.crystal_version }}-alpine
     steps:
       - uses: actions/checkout@v1
       - name: Install shards
@@ -26,9 +42,17 @@ jobs:
       - name: Analyze
         run: crystal bin/ameba.cr
   specs:
+    strategy:
+      fail-fast: false
+      matrix:
+        crystal_version:
+          - 0.36.1
+          - 1.0.0
+        experimental:
+          - false
     runs-on: ubuntu-latest
-    container:
-      image: crystallang/crystal:0.36.1
+    continue-on-error: ${{ matrix.experimental }}
+    container: crystallang/crystal:${{ matrix.crystal_version }}-alpine
     steps:
       - uses: actions/checkout@v2
       - name: Cache Crystal
