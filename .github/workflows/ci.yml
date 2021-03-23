@@ -41,12 +41,12 @@ jobs:
     container: crystallang/crystal:${{ matrix.crystal_version }}-alpine
     steps:
       - uses: actions/checkout@v2
-      - name: Install shards
-        run: shards install
       - name: Cache Crystal
         uses: actions/cache@v1
         with:
           path: ~/.cache/crystal
           key: ${{ runner.os }}-crystal
+      - name: Install shards
+        run: shards install
       - name: Run tests
         run: crystal spec
