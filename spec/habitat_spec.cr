@@ -189,7 +189,7 @@ describe Habitat do
     FakeServer.settings.this_can_be_nil.should eq "not nil"
 
     FakeServer.settings.nilable_with_default.should eq "default"
-    FakeServer.configure { |settings| settings.nilable_with_default = nil }
+    FakeServer.configure(&.nilable_with_default=(nil))
     FakeServer.settings.nilable_with_default.should be_nil
   end
 
