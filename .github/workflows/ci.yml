@@ -46,5 +46,7 @@ jobs:
         with:
           path: ~/.cache/crystal
           key: ${{ runner.os }}-crystal
+      - name: Install shards
+        run: shards install
       - name: Run tests
         run: crystal spec
