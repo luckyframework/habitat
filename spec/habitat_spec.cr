@@ -105,9 +105,12 @@ end
 
 module SuperMod
 end
+
 record Point, x : Int32, y : Int32
+
 abstract class Bomb
 end
+
 class Tacos < Bomb
 end
 
@@ -142,7 +145,7 @@ describe Habitat do
 
   it "works with all kinds of types" do
     ASettingForEverything.configure do |settings|
-      settings.proc_notation = ->(x : String) { }
+      settings.proc_notation = ->(x : String) { x }
       settings.mod = Fruit(String).new
       settings.things = ["hi", 1].sample
       settings.bomb = Tacos.new
