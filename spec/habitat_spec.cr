@@ -103,6 +103,35 @@ class BaseConfig # reopen for extension
   end
 end
 
+module SuperMod
+end
+
+record Point, x : Int32, y : Int32
+
+abstract class Bomb
+end
+
+class Tacos < Bomb
+end
+
+class Fruit(R)
+  include SuperMod
+end
+
+class ASettingForEverything
+  alias Dot = Int32
+  Habitat.create do
+    setting proc_notation : String -> Nil
+    setting alias_setting : Dot = 3
+    setting point : Point = Point.new(x: 3, y: 4)
+    setting mod : SuperMod
+    setting parent : Parent = Settings::Index.new
+    setting things : String | Int32
+    setting bomb : Bomb
+    setting fruit : Fruit(Bomb)
+  end
+end
+
 describe Habitat do
   it "works with simple types" do
     setup_server(port: 8080)
@@ -112,6 +141,16 @@ describe Habitat do
     FakeServer.settings.debug_errors.should eq true
     FakeServer.settings.boolean.should eq false
     FakeServer.new.available_in_instance_methods.should eq 8080
+  end
+
+  it "works with all kinds of types" do
+    ASettingForEverything.configure do |settings|
+      settings.proc_notation = ->(_x : String) {}
+      settings.mod = Fruit(String).new
+      settings.things = ["hi", 1].sample
+      settings.bomb = Tacos.new
+      settings.fruit = Fruit(Bomb).new
+    end
   end
 
   context "with validations" do
