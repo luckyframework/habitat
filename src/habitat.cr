@@ -1,27 +1,6 @@
 require "./habitat/*"
 
 class Habitat
-  # :nodoc:
-  class MissingSettingError < Exception
-    def initialize(type, setting_name, example)
-      example ||= "some_value"
-      super <<-ERROR
-      The '#{setting_name}' setting for #{type} was nil, but the setting is required.
-
-      Try this...
-
-        #{type}.configure do |settings|
-          settings.#{setting_name} = #{example}
-        end
-
-      ERROR
-    end
-  end
-
-  # :nodoc:
-  class InvalidSettingFormatError < Exception
-  end
-
   TYPES_WITH_HABITAT = [] of Nil
 
   # :nodoc:
@@ -187,6 +166,28 @@ class Habitat
     end
   end
 
+  # Extend an existing Habitat config with additional
+  # settings. Can be used if a shard sets a config, and
+  # and you need additional properties to extend the shard.
+  #
+  # ```
+  # class IoT
+  #   Habitat.create do
+  #     setting name : String
+  #   end
+  # end
+  #
+  # class IoT
+  #   Habitat.extend do
+  #     setting uuid : UUID
+  #   end
+  # end
+  #
+  # IoT.configure do |settings|
+  #   settings.name = "plug"
+  #   settings.uuid = UUID.random
+  # end
+  # ```
   macro extend
     macro validate_create_setup_first(type)
       \{% if !type.has_constant? "HABITAT_SETTINGS" %}
@@ -210,29 +211,6 @@ class Habitat
     include Habitat::SettingsHelpers
 
     {{ yield }}
-  end
-
-  # :nodoc:
-  module SettingsHelpers
-    macro setting(decl, example = nil, validation = nil)
-      {% if decl.var.stringify.ends_with?('?') %}
-        {% decl.raise <<-ERROR
-        You cannot define a setting ending with '?'. Found #{decl.var} defined in #{@type}.
-
-        Habitat already has a predicate method #{decl.var} used when checking for missing settings.
-        ERROR
-        %}
-      {% end %}
-      {% HABITAT_SETTINGS << {decl: decl, example: example, validation: validation} %}
-    end
-
-    macro inherit_habitat_settings_from_superclass
-      {% if @type.superclass && @type.superclass.type_vars.size == 0 && @type.superclass.constant(:HABITAT_SETTINGS) %}
-        {% for decl in @type.superclass.constant(:HABITAT_SETTINGS) %}
-          {% HABITAT_SETTINGS << decl %}
-        {% end %}
-      {% end %}
-    end
   end
 
   # :nodoc:
@@ -300,43 +278,6 @@ class Habitat
           {% end %}
         }
       end
-    end
-  end
-
-  module TempConfig
-    # Temporarily changes the configuration
-    #
-    # This method will change the configuration to the passed in value for the
-    # duration of the block. When the block is finished running, Habitat will
-    # then reset to the value before the block
-    #
-    # ```
-    # MyServer.configure do |settings|
-    #   settings.port = 80
-    # end
-    #
-    # MyServer.settings.port # 80
-    #
-    # MyServer.temp_config(port: 3000) do
-    #   MyServer.settings.port # 3000
-    # end
-    #
-    # MyServer.settings.port # 80
-    # ```
-    #
-    # This can be very helpful when writing specs and you need to temporarily
-    # change a value
-    macro temp_config(**settings_with_values)
-      {% for setting_name, setting_value in settings_with_values %}
-        original_{{ setting_name }} = {{ @type.name }}.settings.{{setting_name}}
-        {{ @type.name }}.settings.{{ setting_name }} = {{ setting_value }}
-      {% end %}
-
-      {{ yield }}
-
-      {% for setting_name, _unused in settings_with_values %}
-        {{ @type.name }}.settings.{{ setting_name }} = original_{{ setting_name }}
-      {% end %}
     end
   end
 end
