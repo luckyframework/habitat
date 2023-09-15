@@ -118,6 +118,26 @@ class Fruit(R)
   include SuperMod
 end
 
+class SpecialClient
+  class_property connection_count : Int32 = 0
+  class_property call_count : Int32 = 0
+
+  def initialize
+    SpecialClient.connection_count += 1
+  end
+
+  def call
+    SpecialClient.call_count += 1
+    "done"
+  end
+end
+
+class MemoizedSettings
+  Habitat.create do
+    setting connection : SpecialClient = SpecialClient.new
+  end
+end
+
 class ASettingForEverything
   alias Dot = Int32
   Habitat.create do
@@ -290,6 +310,22 @@ describe Habitat do
 
   it "doesn't conflict with Habitat Settings" do
     Settings::Index.settings.parent_setting.should eq true
+  end
+
+  it "verifies a setting can be called multiple times without creating a new object" do
+    SpecialClient.connection_count.should eq(1)
+    SpecialClient.call_count.should eq(0)
+    obj_id = MemoizedSettings.settings.connection.object_id
+
+    MemoizedSettings.settings.connection.call.should eq("done")
+    MemoizedSettings.settings.connection.object_id.should eq(obj_id)
+    SpecialClient.connection_count.should eq(1)
+    SpecialClient.call_count.should eq(1)
+
+    MemoizedSettings.settings.connection.call.should eq("done")
+    MemoizedSettings.settings.connection.object_id.should eq(obj_id)
+    SpecialClient.connection_count.should eq(1)
+    SpecialClient.call_count.should eq(2)
   end
 end
 
