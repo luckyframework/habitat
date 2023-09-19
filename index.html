@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 0.36.1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Crystal Docs 1.8.2">
 <meta name="crystal_docs.project_version" content="main">
 <meta name="crystal_docs.project_name" content="habitat">
 
@@ -25,6 +26,11 @@
     <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
   </symbol>
 </svg>
+<input type="checkbox" id="sidebar-btn">
+<label for="sidebar-btn" id="sidebar-btn-label">
+  <svg class="open" xmlns="http://www.w3.org/2000/svg" height="2em" width="2em" viewBox="0 0 512 512"><title>Open Sidebar</title><path fill="currentColor" d="M80 96v64h352V96H80zm0 112v64h352v-64H80zm0 112v64h352v-64H80z"></path></svg>
+  <svg class="close" xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" viewBox="0 0 512 512"><title>Close Sidebar</title><path fill="currentColor" d="m118.6 73.4-45.2 45.2L210.7 256 73.4 393.4l45.2 45.2L256 301.3l137.4 137.3 45.2-45.2L301.3 256l137.3-137.4-45.2-45.2L256 210.7Z"></path></svg>
+</label>
 <div class="sidebar">
   <div class="sidebar-header">
     <div class="search-box">
@@ -73,125 +79,107 @@
 
 
 <div class="main-content">
-<h1><a id="habitat" class="anchor" href="#habitat">
-  <svg class="octicon-link" aria-hidden="true">
+<h1><a id="habitat" class="anchor" href="#habitat">  <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>Habitat</h1>
-
-<p><a href="https://luckyframework.github.io/habitat"><img src="https://img.shields.io/website?down_color=red&down_message=Offline&label=API%20Documentation&up_message=Online&url=https%3A%2F%2Fluckyframework.github.io%2Fhabitat%2F" alt="API Documentation Website"/></a></p>
-
+<p><a href="https://luckyframework.github.io/habitat"><img src="https://img.shields.io/website?down_color=red&amp;down_message=Offline&amp;label=API%20Documentation&amp;up_message=Online&amp;url=https://luckyframework.github.io/habitat/" alt="API Documentation Website" /></a></p>
 <p>Easily configure settings for Crystal projects</p>
-
 <h2><a id="installation" class="anchor" href="#installation">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>Installation</h2>
-
 <p>Add this to your application's <code>shard.yml</code>:</p>
-
 <pre><code class="language-yaml">dependencies:
   habitat:
     github: luckyframework/habitat</code></pre>
-
 <h2><a id="usage" class="anchor" href="#usage">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>Usage</h2>
-
 <pre><code class="language-crystal"><span class="k">require</span> <span class="s">&quot;habitat&quot;</span></code></pre>
+<pre><code class="language-crystal">class MyServer
+  Habitat.create do
+    setting port : Int32
+    setting debug_errors : Bool = true
 
-<pre><code class="language-crystal"><span class="k">class</span> <span class="t">MyServer</span>
-  <span class="t">Habitat</span>.create <span class="k">do</span>
-    setting port : <span class="t">Int32</span>
-    setting debug_errors : <span class="t">Bool</span> <span class="o">=</span> <span class="n">true</span>
+    # Optionally add examples to settings that appear in error messages
+    # when the value is not set.
+    #
+    # Use `String#dump` when you want the example to be wrapped in quotes
+    setting host : String, example: &quot;127.0.0.1&quot;.dump
+    setting logger : Logger, example: &quot;Logger.new(STDOUT)&quot;
 
-    <span class="c"># Optionally add examples to settings that appear in error messages</span>
-    <span class="c"># when the value is not set.</span>
-    <span class="c">#</span>
-    <span class="c"># Use `String#dump` when you want the example to be wrapped in quotes</span>
-    setting host : <span class="t">String</span>, example: <span class="s">&quot;127.0.0.1&quot;</span>.dump
-    setting logger : <span class="t">Logger</span>, example: <span class="s">&quot;Logger.new(STDOUT)&quot;</span>
+    # If you need the value to match a specific format, you can create
+    # your own validation.
+    setting protocol : String, validation: :validate_protocol
+  end
 
-    <span class="c"># If you need the value to match a specific format, you can create</span>
-    <span class="c"># your own validation.</span>
-    setting protocol : <span class="t">String</span>, validation: <span class="n">:validate_protocol</span>
-  <span class="k">end</span>
+  # Read more on validations below
+  def self.validate_protocol(value : String)
+    value.match(/^http(?:s)*:$/) || Habitat.raise_validation_error(&quot;The protocol must be `http:` or `https:`.&quot;)
+  end
 
-  <span class="c"># Read more on validations below</span>
-  <span class="k">def</span> <span class="m">self</span>.validate_protocol(value : <span class="t">String</span>)
-    value.match(<span class="s">/^http(?:s)*:$/</span>) || <span class="t">Habitat</span>.raise_validation_error(<span class="s">&quot;The protocol must be `http:` or `https:`.&quot;</span>)
-  <span class="k">end</span>
-
-  <span class="c"># Access them with the `settings` method like this.</span>
-  <span class="k">def</span> <span class="m">start</span>
+  # Access them with the `settings` method like this.
+  def start
     start_server_on port: settings.port
-  <span class="k">end</span>
-<span class="k">end</span>
+  end
+end
 
-<span class="c"># Configure your settings</span>
-<span class="t">MyServer</span>.configure <span class="k">do</span> <span class="o">|</span>settings<span class="o">|</span>
-  settings.port <span class="o">=</span> <span class="n">8080</span>
-<span class="k">end</span>
+# Configure your settings
+MyServer.configure do |settings|
+  settings.port = 8080
+end
 
-<span class="c"># At the very end of your program use this</span>
-<span class="c"># It will raise if you forgot to set any settings</span>
-<span class="t">Habitat</span>.raise_if_missing_settings!</code></pre>
-
+# At the very end of your program use this
+# It will raise if you forgot to set any settings
+Habitat.raise_if_missing_settings!</code></pre>
 <p>Settings can also be accessed from outside the class:</p>
-
 <pre><code class="language-crystal">port <span class="o">=</span> <span class="t">MyServer</span>.settings.port
 puts <span class="s">&quot;The server is starting on port </span><span class="i">#{</span>port<span class="i">}</span><span class="s">&quot;</span></code></pre>
-
 <h3><a id="setting-validations" class="anchor" href="#setting-validations">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>Setting validations</h3>
-
 <p>The <code>validation</code> option takes a Symbol which matches a class method
 that will run your custom validation. This can be useful if your
 setting needs to be in a specific format like maybe a 4 digit code
 that can start with a 0.</p>
+<pre><code class="language-crystal">class Secret
+  Habitat.create do
+    setting code : String, validation: :validate_code
+  end
 
-<pre><code class="language-crystal"><span class="k">class</span> <span class="t">Secret</span>
-  <span class="t">Habitat</span>.create <span class="k">do</span>
-    setting code : <span class="t">String</span>, validation: <span class="n">:validate_code</span>
-  <span class="k">end</span>
+  # The validation method will take an argument of the same type.
+  # If your setting is `Int32`, then this argument will also be `Int32`.
+  #
+  # Use any method of validation you&#39;d like here. (i.e. regex, other custom methods, etc...)
+  # If your validation fails, you can call `Habitat.raise_validation_error` with your custom error
+  # message
+  def self.validate_code(value : String)
+    value.match(/^\d{4}$/) || Habitat.raise_validation_error(&quot;Be sure the code is only 4 digits&quot;)
+  end
+end
 
-  <span class="c"># The validation method will take an argument of the same type.</span>
-  <span class="c"># If your setting is `Int32`, then this argument will also be `Int32`.</span>
-  <span class="c">#</span>
-  <span class="c"># Use any method of validation you&#39;d like here. (i.e. regex, other custom methods, etc...)</span>
-  <span class="c"># If your validation fails, you can call `Habitat.raise_validation_error` with your custom error</span>
-  <span class="c"># message</span>
-  <span class="k">def</span> <span class="m">self</span>.validate_code(value : <span class="t">String</span>)
-    value.match(<span class="s">/^\d{4}$/</span>) || <span class="t">Habitat</span>.raise_validation_error(<span class="s">&quot;Be sure the code is only 4 digits&quot;</span>)
-  <span class="k">end</span>
-<span class="k">end</span>
+Secret.configure do |settings|
 
-<span class="t">Secret</span>.configure <span class="k">do</span> <span class="o">|</span>settings<span class="o">|</span>
+  # Even though the code is the correct type, this will still
+  # raise an error for us.
+  settings.code = &quot;ABCD&quot;
 
-  <span class="c"># Even though the code is the correct type, this will still</span>
-  <span class="c"># raise an error for us.</span>
-  settings.code <span class="o">=</span> <span class="s">&quot;ABCD&quot;</span>
-
-  <span class="c"># This value will pass our validation</span>
-  settings.code <span class="o">=</span> <span class="s">&quot;0123&quot;</span>
-<span class="k">end</span></code></pre>
-
+  # This value will pass our validation
+  settings.code = &quot;0123&quot;
+end</code></pre>
 <h3><a id="temp-config" class="anchor" href="#temp-config">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>Temp Config</h3>
-
 <p>There are some cases in which you may want to temporarily change a setting value. (i.e. specs, one off jobs, etc...)</p>
-
 <p>Habitat comes with a built-in method <code>temp_config</code> that allows you to do this:</p>
-
 <pre><code class="language-crystal"><span class="k">class</span> <span class="t">Server</span>
   <span class="t">Habitat</span>.create <span class="k">do</span>
     setting hostname : <span class="t">String</span>
@@ -211,22 +199,26 @@ that can start with a 0.</p>
 
 <span class="c"># Once the block exits, the original value is returned</span>
 <span class="t">Server</span>.settings.hostname <span class="c">#=&gt; &quot;localhost&quot;</span></code></pre>
-
 <h2><a id="contributing" class="anchor" href="#contributing">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>Contributing</h2>
-
-<ol><li>Fork it ( https://github.com/luckyframework/habitat/fork )</li><li>Create your feature branch (git checkout -b my-new-feature)</li><li>Commit your changes (git commit -am 'Add some feature')</li><li>Push to the branch (git push origin my-new-feature)</li><li>Create a new Pull Request</li></ol>
-
+<ol>
+<li>Fork it ( https://github.com/luckyframework/habitat/fork )</li>
+<li>Create your feature branch (git checkout -b my-new-feature)</li>
+<li>Commit your changes (git commit -am 'Add some feature')</li>
+<li>Push to the branch (git push origin my-new-feature)</li>
+<li>Create a new Pull Request</li>
+</ol>
 <h2><a id="contributors" class="anchor" href="#contributors">
   <svg class="octicon-link" aria-hidden="true">
     <use href="#octicon-link"/>
   </svg>
 </a>Contributors</h2>
-
-<ul><li><a href="https://github.com/paulcsmith">paulcsmith</a> Paul Smith - creator, maintainer</li></ul>
+<ul>
+<li><a href="https://github.com/paulcsmith">paulcsmith</a> Paul Smith - creator, maintainer</li>
+</ul>
 </div>
 </body>
 </html>

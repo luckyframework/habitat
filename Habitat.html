@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Crystal Docs 0.36.1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Crystal Docs 1.8.2">
 <meta name="crystal_docs.project_version" content="main">
 <meta name="crystal_docs.project_name" content="habitat">
 
@@ -25,6 +26,11 @@
     <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
   </symbol>
 </svg>
+<input type="checkbox" id="sidebar-btn">
+<label for="sidebar-btn" id="sidebar-btn-label">
+  <svg class="open" xmlns="http://www.w3.org/2000/svg" height="2em" width="2em" viewBox="0 0 512 512"><title>Open Sidebar</title><path fill="currentColor" d="M80 96v64h352V96H80zm0 112v64h352v-64H80zm0 112v64h352v-64H80z"></path></svg>
+  <svg class="close" xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" viewBox="0 0 512 512"><title>Close Sidebar</title><path fill="currentColor" d="m118.6 73.4-45.2 45.2L210.7 256 73.4 393.4l45.2 45.2L256 301.3l137.4 137.3 45.2-45.2L301.3 256l137.3-137.4-45.2-45.2L256 210.7Z"></path></svg>
+</label>
 <div class="sidebar">
   <div class="sidebar-header">
     <div class="search-box">
@@ -108,14 +114,35 @@
   </h2>
   
     
-      <a href="https://github.com/luckyframework/habitat/blob/2aed1129a0cc3fae3fae4cb88030cef94c0aa8cf/src/habitat.cr#L3" target="_blank">
+      <a href="https://github.com/luckyframework/habitat/blob/5fd8d7b11bbfb82f28cddc817f010d76690e49f2/src/habitat.cr#L3" target="_blank">
         habitat.cr
       </a>
     
     <br/>
   
     
-      <a href="https://github.com/luckyframework/habitat/blob/2aed1129a0cc3fae3fae4cb88030cef94c0aa8cf/src/habitat/version.cr#L1" target="_blank">
+      <a href="https://github.com/luckyframework/habitat/blob/5fd8d7b11bbfb82f28cddc817f010d76690e49f2/src/habitat/errors.cr#L1" target="_blank">
+        habitat/errors.cr
+      </a>
+    
+    <br/>
+  
+    
+      <a href="https://github.com/luckyframework/habitat/blob/5fd8d7b11bbfb82f28cddc817f010d76690e49f2/src/habitat/settings_helpers.cr#L1" target="_blank">
+        habitat/settings_helpers.cr
+      </a>
+    
+    <br/>
+  
+    
+      <a href="https://github.com/luckyframework/habitat/blob/5fd8d7b11bbfb82f28cddc817f010d76690e49f2/src/habitat/temp_config.cr#L1" target="_blank">
+        habitat/temp_config.cr
+      </a>
+    
+    <br/>
+  
+    
+      <a href="https://github.com/luckyframework/habitat/blob/5fd8d7b11bbfb82f28cddc817f010d76690e49f2/src/habitat/version.cr#L1" target="_blank">
         habitat/version.cr
       </a>
     
@@ -142,7 +169,7 @@
       
     
       <dt class="entry-const" id="VERSION">
-        <strong>VERSION</strong> = <code><span class="s">&quot;0.4.7&quot;</span></code>
+        <strong>VERSION</strong> = <code><span class="s">&quot;0.4.8&quot;</span></code>
       </dt>
       
     
@@ -163,14 +190,14 @@
   <ul class="list-summary">
     
       <li class="entry-summary">
-        <a href="#raise_if_missing_settings!-class-method" class="signature"><strong>.raise_if_missing_settings!</strong></a>
+        <a href="#raise_if_missing_settings%21-class-method" class="signature"><strong>.raise_if_missing_settings!</strong></a>
         
           <div class="summary"><p>Raises an error when a required setting is missing.</p></div>
         
       </li>
     
       <li class="entry-summary">
-        <a href="#raise_validation_error(message:String)-class-method" class="signature"><strong>.raise_validation_error</strong>(message : String)</a>
+        <a href="#raise_validation_error%28message%3AString%29-class-method" class="signature"><strong>.raise_validation_error</strong>(message : String)</a>
         
           <div class="summary"><p>Raise the <code>message</code> passed in.</p></div>
         
@@ -201,6 +228,8 @@
     
       <li class="entry-summary">
         <a href="#extend-macro" class="signature"><strong>extend</strong></a>
+        
+          <div class="summary"><p>Extend an existing Habitat config with additional settings.</p></div>
         
       </li>
     
@@ -249,16 +278,14 @@
         
         def self.<strong>raise_if_missing_settings!</strong>
 
-        <a class="method-permalink" href="#raise_if_missing_settings!-class-method">#</a>
+        <a class="method-permalink" href="#raise_if_missing_settings%21-class-method">#</a>
       </div>
       
         <div class="doc">
           
           <p>Raises an error when a required setting is missing.</p>
-
 <p>Raises a <code>Habitat::MissingSettingError</code> if a required setting hasn't been
 set. We recommend that you call it at the very end of your program.</p>
-
 <pre><code class="language-crystal"><span class="k">class</span> <span class="t">YourClass</span>
   <span class="t">Habitat</span>.create <span class="k">do</span>
     <span class="c"># ...</span>
@@ -277,7 +304,7 @@ set. We recommend that you call it at the very end of your program.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/luckyframework/habitat/blob/2aed1129a0cc3fae3fae4cb88030cef94c0aa8cf/src/habitat.cr#L33" target="_blank">View source</a>]
+          [<a href="https://github.com/luckyframework/habitat/blob/5fd8d7b11bbfb82f28cddc817f010d76690e49f2/src/habitat.cr#L12" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -287,7 +314,7 @@ set. We recommend that you call it at the very end of your program.</p>
         
         def self.<strong>raise_validation_error</strong>(message : String)
 
-        <a class="method-permalink" href="#raise_validation_error(message:String)-class-method">#</a>
+        <a class="method-permalink" href="#raise_validation_error%28message%3AString%29-class-method">#</a>
       </div>
       
         <div class="doc">
@@ -298,7 +325,7 @@ set. We recommend that you call it at the very end of your program.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/luckyframework/habitat/blob/2aed1129a0cc3fae3fae4cb88030cef94c0aa8cf/src/habitat.cr#L69" target="_blank">View source</a>]
+          [<a href="https://github.com/luckyframework/habitat/blob/5fd8d7b11bbfb82f28cddc817f010d76690e49f2/src/habitat.cr#L48" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -328,28 +355,22 @@ set. We recommend that you call it at the very end of your program.</p>
         <div class="doc">
           
           <p>Embed settings in a Class or Module.</p>
-
 <p>A class or module can call <code><a href="Habitat.html#create-macro">Habitat.create</a></code> with a block of <code>setting</code> calls
 that will declare the types (and optionally default values) of our settings.</p>
-
 <pre><code class="language-crystal"><span class="k">class</span> <span class="t">MyServer</span>
   <span class="t">Habitat</span>.create <span class="k">do</span>
     setting port : <span class="t">Int32</span>
     setting debug_errors : <span class="t">Bool</span> <span class="o">=</span> <span class="n">true</span>
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
-
 <p><code><a href="Habitat.html#create-macro">create</a></code> adds a <code>.configure</code> class method that takes a block where we
 can use the <code>settings</code> setters.</p>
-
 <pre><code class="language-crystal"><span class="t">MyServer</span>.configure <span class="k">do</span>
   settings.port <span class="o">=</span> <span class="n">80</span>
   settings.debug_errors <span class="o">=</span> <span class="n">false</span>
 <span class="k">end</span></code></pre>
-
 <p><code><a href="Habitat.html#create-macro">create</a></code> also adds class and instance <code>settings</code> methods to the embedding
 class/module, which we'll use to get the values of our settings.</p>
-
 <pre><code class="language-crystal"><span class="t">MyServer</span>.configure <span class="k">do</span> <span class="o">|</span>settings<span class="o">|</span>
   settings.port <span class="o">=</span> <span class="n">80</span>
 <span class="k">end</span>
@@ -362,10 +383,8 @@ class/module, which we'll use to get the values of our settings.</p>
     settings.port <span class="c"># 80</span>
   <span class="k">end</span>
 <span class="k">end</span></code></pre>
-
 <p>The settings assigned to a parent class will be inherited by its children
 classes.</p>
-
 <pre><code class="language-crystal"><span class="k">class</span> <span class="t">CustomServer</span> <span class="o">&lt;</span> <span class="t">MyServer</span>; <span class="k">end</span>
 
 <span class="t">MyServer</span>.configure <span class="k">do</span> <span class="o">|</span>settings<span class="o">|</span>
@@ -373,29 +392,23 @@ classes.</p>
 <span class="k">end</span>
 
 <span class="t">CustomServer</span>.settings.port <span class="c"># 3000</span></code></pre>
-
 <p>Assigning a value to a setting of incompatible type will result in an error
 at compile time.</p>
-
 <pre><code class="language-crystal"><span class="t">MyServer</span>.configure <span class="k">do</span> <span class="o">|</span>settings<span class="o">|</span>
   settings.port <span class="o">=</span> <span class="s">&quot;80&quot;</span> <span class="c"># Compile-time error! An Int32 was expected</span>
 <span class="k">end</span></code></pre>
-
 <p>Each setting can take an optional <code>validation</code> argument to ensure the setting
 value matches a specific format.</p>
+<pre><code class="language-crystal">class MyMachine
+  Habitat.create do
+    setting pin : String, validation: :pin_format
+  end
 
-<pre><code class="language-crystal"><span class="k">class</span> <span class="t">MyMachine</span>
-  <span class="t">Habitat</span>.create <span class="k">do</span>
-    setting pin : <span class="t">String</span>, validation: <span class="n">:pin_format</span>
-  <span class="k">end</span>
-
-  <span class="k">def</span> <span class="m">self</span>.pin_format(value : <span class="t">String</span>)
-    value.match(<span class="s">/^\d{4}/</span>) || <span class="t">Habitat</span>.raise_validation_error(<span class="s">&quot;Your PIN must be exactly 4 digits&quot;</span>)
-  <span class="k">end</span>
-<span class="k">end</span></code></pre>
-
+  def self.pin_format(value : String)
+    value.match(/^\d{4}/) || Habitat.raise_validation_error(&quot;Your PIN must be exactly 4 digits&quot;)
+  end
+end</code></pre>
 <p>Even though the type is correct, this will now raise an error because the format doesn't match</p>
-
 <pre><code class="language-crystal"><span class="t">MyMachine</span>.configure <span class="k">do</span> <span class="o">|</span>settings<span class="o">|</span>
   settings.pin <span class="o">=</span> <span class="s">&quot;abcd&quot;</span>
 <span class="k">end</span></code></pre>
@@ -404,7 +417,7 @@ value matches a specific format.</p>
       <br/>
       <div>
         
-          [<a href="https://github.com/luckyframework/habitat/blob/2aed1129a0cc3fae3fae4cb88030cef94c0aa8cf/src/habitat.cr#L158" target="_blank">View source</a>]
+          [<a href="https://github.com/luckyframework/habitat/blob/5fd8d7b11bbfb82f28cddc817f010d76690e49f2/src/habitat.cr#L137" target="_blank">View source</a>]
         
       </div>
     </div>
@@ -417,10 +430,33 @@ value matches a specific format.</p>
         <a class="method-permalink" href="#extend-macro">#</a>
       </div>
       
+        <div class="doc">
+          
+          <p>Extend an existing Habitat config with additional
+settings. Can be used if a shard sets a config, and
+and you need additional properties to extend the shard.</p>
+<pre><code class="language-crystal"><span class="k">class</span> <span class="t">IoT</span>
+  <span class="t">Habitat</span>.create <span class="k">do</span>
+    setting name : <span class="t">String</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="k">class</span> <span class="t">IoT</span>
+  <span class="t">Habitat</span>.<span class="k">extend</span> <span class="k">do</span>
+    setting uuid : <span class="t">UUID</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="t">IoT</span>.configure <span class="k">do</span> <span class="o">|</span>settings<span class="o">|</span>
+  settings.name <span class="o">=</span> <span class="s">&quot;plug&quot;</span>
+  settings.uuid <span class="o">=</span> <span class="t">UUID</span>.random
+<span class="k">end</span></code></pre>
+        </div>
+      
       <br/>
       <div>
         
-          [<a href="https://github.com/luckyframework/habitat/blob/2aed1129a0cc3fae3fae4cb88030cef94c0aa8cf/src/habitat.cr#L190" target="_blank">View source</a>]
+          [<a href="https://github.com/luckyframework/habitat/blob/5fd8d7b11bbfb82f28cddc817f010d76690e49f2/src/habitat.cr#L191" target="_blank">View source</a>]
         
       </div>
     </div>
