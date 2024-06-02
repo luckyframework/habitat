@@ -32,8 +32,11 @@ jobs:
         include:
           - os: ubuntu-latest
             crystal_version: 1.4.0
+          - os: ubuntu-latest
+            crystal_version: nightly
+            experimental: true
     runs-on: ${{ matrix.os }}
-    continue-on-error: false
+    continue-on-error: ${{ matrix.experimental }}
     steps:
       - uses: actions/checkout@v3
       - uses: crystal-lang/install-crystal@v1
