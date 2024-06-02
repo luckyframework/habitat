@@ -29,9 +29,11 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         crystal_version: [latest]
+        experimental: false
         include:
           - os: ubuntu-latest
             crystal_version: 1.4.0
+            experimental: false
           - os: ubuntu-latest
             crystal_version: nightly
             experimental: true
