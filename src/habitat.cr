@@ -31,17 +31,10 @@ class Habitat
     # Habitat.raise_if_missing_settings!
     # ```
     def self.raise_if_missing_settings!
-      {% # https://github.com/crystal-lang/crystal/pull/14490
-
- if compare_versions(Crystal::VERSION, "1.13.0-dev") >= 0
-   nil_type_id = "::Nil".id
- else
-   nil_type_id = "Nil".id
- end %}
       {% for type in TYPES_WITH_HABITAT %}
         {% for setting in type.constant(:HABITAT_SETTINGS) %}
         {% if !setting[:decl].type.is_a?(Union) ||
-                (setting[:decl].type.is_a?(Union) && !setting[:decl].type.types.map(&.id).includes?(nil_type_id)) %}
+                (setting[:decl].type.is_a?(Union) && !setting[:decl].type.types.any?(&.names.includes?(Nil.id))) %}
             if {{ type }}.settings.{{ setting[:decl].var }}?.nil?
               raise MissingSettingError.new {{ type }}, setting_name: {{ setting[:decl].var.stringify }}, example: {{ setting[:example] }}
             end
@@ -233,19 +226,12 @@ class Habitat
         {% end %}
       {% end %}
 
-      {% # https://github.com/crystal-lang/crystal/pull/14490
- if compare_versions(Crystal::VERSION, "1.13.0-dev") >= 0
-   nil_type_id = "::Nil".id
- else
-   nil_type_id = "Nil".id
- end %}
-
       {% for opt in type_with_habitat.constant(:HABITAT_SETTINGS) %}
         {% decl = opt[:decl] %}
         # NOTE: We can't use the macro level `type.resolve.nilable?` here because
         # there's a few declaration types that don't respond to it which would make the logic
         # more complex. Metaclass, and Proc types are the main, but there may be more.
-        {% if decl.type.is_a?(Union) && decl.type.types.map(&.id).includes?(nil_type_id) %}
+        {% if decl.type.is_a?(Union) && decl.type.types.any?(&.names.includes?(Nil.id)) %}
           {% nilable = true %}
         {% else %}
           {% nilable = false %}
