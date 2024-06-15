@@ -141,7 +141,7 @@ end
 class ASettingForEverything
   alias Dot = Int32
   Habitat.create do
-    setting proc_notation : String -> Nil
+    setting proc_notation : (String -> Nil)?
     setting alias_setting : Dot = 3
     setting point : Point = Point.new(x: 3, y: 4)
     setting mod : SuperMod
