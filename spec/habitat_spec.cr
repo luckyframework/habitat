@@ -141,14 +141,23 @@ end
 class ASettingForEverything
   alias Dot = Int32
   Habitat.create do
-    setting proc_notation : (String -> Nil)?
+    setting proc_notation : (String -> Nil)
+    setting nilable_proc_notation : (String -> Nil)?
     setting alias_setting : Dot = 3
+    setting nilable_alias_setting : Dot?
     setting point : Point = Point.new(x: 3, y: 4)
+    setting nilable_point : Point?
     setting mod : SuperMod
+    setting nilable_mod : SuperMod?
     setting parent : Parent = Settings::Index.new
+    setting nilable_parent : Parent?
     setting things : String | Int32
+    setting nilable_things : String | Int32 | Nil
     setting bomb : Bomb
-    setting fruit : Fruit(Bomb)
+    setting nilable_bomb : Bomb?
+    setting generic : Fruit(Bomb)
+    setting nilable_generic : Fruit(Bomb)?
+    setting nilable_generic_of_nilable : Fruit(Bomb?)?
   end
 end
 
@@ -169,7 +178,7 @@ describe Habitat do
       settings.mod = Fruit(String).new
       settings.things = ["hi", 1].sample
       settings.bomb = Tacos.new
-      settings.fruit = Fruit(Bomb).new
+      settings.generic = Fruit(Bomb).new
     end
   end
 
