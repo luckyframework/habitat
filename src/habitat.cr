@@ -34,7 +34,7 @@ class Habitat
       {% for type in TYPES_WITH_HABITAT %}
         {% for setting in type.constant(:HABITAT_SETTINGS) %}
         {% if !setting[:decl].type.is_a?(Union) ||
-                (setting[:decl].type.is_a?(Union) && !setting[:decl].type.types.any?(&.names.includes?(Nil.id))) %}
+                (setting[:decl].type.is_a?(Union) && !setting[:decl].type.types.any? { |t| t.is_a?(ProcNotation) ? false : t.names.includes?(Nil.id) }) %}
             if {{ type }}.settings.{{ setting[:decl].var }}?.nil?
               raise MissingSettingError.new {{ type }}, setting_name: {{ setting[:decl].var.stringify }}, example: {{ setting[:example] }}
             end
@@ -231,7 +231,7 @@ class Habitat
         # NOTE: We can't use the macro level `type.resolve.nilable?` here because
         # there's a few declaration types that don't respond to it which would make the logic
         # more complex. Metaclass, and Proc types are the main, but there may be more.
-        {% if decl.type.is_a?(Union) && decl.type.types.any?(&.names.includes?(Nil.id)) %}
+        {% if decl.type.is_a?(Union) && decl.type.types.any? { |t| t.is_a?(ProcNotation) ? false : t.names.includes?(Nil.id) } %}
           {% nilable = true %}
         {% else %}
           {% nilable = false %}
