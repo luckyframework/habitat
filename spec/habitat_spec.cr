@@ -174,7 +174,7 @@ describe Habitat do
 
   it "works with all kinds of types" do
     ASettingForEverything.configure do |settings|
-      settings.proc_notation = ->(_x : String) {}
+      settings.proc_notation = ->(_x : String) { }
       settings.mod = Fruit(String).new
       settings.things = ["hi", 1].sample
       settings.bomb = Tacos.new
